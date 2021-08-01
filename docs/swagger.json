@@ -18,6 +18,170 @@
     "host": "petstore.swagger.io",
     "basePath": "/v2",
     "paths": {
+        "/cart": {
+            "post": {
+                "description": "Create Cart",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "operationId": "Create Cart",
+                "parameters": [
+                    {
+                        "description": "create cart info",
+                        "name": "CreateCart",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CreateCartRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CartSuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.CartFailedResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.CartFailedResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/cart/find-all": {
+            "post": {
+                "description": "Find All Cart",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "parameters": [
+                    {
+                        "description": "search cart info",
+                        "name": "Searchuser",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.SearchParamCartRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CartSuccessWithPagingResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.CartFailedResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/cart/{id}": {
+            "get": {
+                "description": "Find a Cart",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "operationId": "Find a Cart",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CartSuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.CartFailedResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.CartFailedResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update Cart",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "operationId": "Update Cart",
+                "parameters": [
+                    {
+                        "description": "update cart info",
+                        "name": "CreateCart",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UpdateCartRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.CartSuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.CartFailedResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.CartFailedResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/product": {
             "post": {
                 "description": "Create Product",
@@ -184,6 +348,25 @@
         }
     },
     "definitions": {
+        "request.CreateCartRequest": {
+            "type": "object",
+            "required": [
+                "customer_id",
+                "product_id",
+                "quantity"
+            ],
+            "properties": {
+                "customer_id": {
+                    "type": "string"
+                },
+                "product_id": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "integer"
+                }
+            }
+        },
         "request.CreateProductRequest": {
             "type": "object",
             "required": [
@@ -203,10 +386,29 @@
                 }
             }
         },
+        "request.SearchParamCartRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "request.SearchParamProductRequest": {
             "type": "object",
             "properties": {
                 "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UpdateCartRequest": {
+            "type": "object",
+            "required": [
+                "product_id"
+            ],
+            "properties": {
+                "product_id": {
                     "type": "string"
                 }
             }
@@ -219,6 +421,105 @@
             "properties": {
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "response.CartFailedResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "code_type": {
+                    "type": "string"
+                },
+                "error_messages": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "response.CartResponse": {
+            "type": "object",
+            "properties": {
+                "customer_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "product_id": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.CartSearchResponse": {
+            "type": "object",
+            "properties": {
+                "current_page": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.CartResponse"
+                    }
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "total_page": {
+                    "type": "integer"
+                },
+                "total_records": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.CartSuccessResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "code_type": {
+                    "type": "string"
+                },
+                "error_messages": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "result": {
+                    "type": "object",
+                    "$ref": "#/definitions/response.CartResponse"
+                }
+            }
+        },
+        "response.CartSuccessWithPagingResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "code_type": {
+                    "type": "string"
+                },
+                "error_messages": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "result": {
+                    "type": "object",
+                    "$ref": "#/definitions/response.CartSearchResponse"
                 }
             }
         },

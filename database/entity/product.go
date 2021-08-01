@@ -40,7 +40,6 @@ func (entityStruct *Product) ValidateBeforeCreate(requestedStruct request.Create
 	return errorResults
 }
 
-//Fungsi ini masih dalam percobaan jd jika masih ada yg blm termappingkan silahkan mapping manual
 func (entityStruct *Product) MappingCreateDataToEntityStruct(requestedStruct request.CreateProductRequest) {
 
 	jsonString, _ := json.Marshal(requestedStruct)

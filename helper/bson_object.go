@@ -15,3 +15,8 @@ func GenerateBsonObjectId() bson.ObjectId {
 
 	return bson.NewObjectId()
 }
+
+func CheckingIsBsonObjectId(input string) bool {
+
+	return bson.IsObjectIdHex(input)
+}

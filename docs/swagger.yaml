@@ -1,5 +1,18 @@
 basePath: /v2
 definitions:
+  request.CreateCartRequest:
+    properties:
+      customer_id:
+        type: string
+      product_id:
+        type: string
+      quantity:
+        type: integer
+    required:
+    - customer_id
+    - product_id
+    - quantity
+    type: object
   request.CreateProductRequest:
     properties:
       code:
@@ -13,10 +26,22 @@ definitions:
     - name
     - quantity
     type: object
+  request.SearchParamCartRequest:
+    properties:
+      name:
+        type: string
+    type: object
   request.SearchParamProductRequest:
     properties:
       name:
         type: string
+    type: object
+  request.UpdateCartRequest:
+    properties:
+      product_id:
+        type: string
+    required:
+    - product_id
     type: object
   request.UpdateProductRequest:
     properties:
@@ -24,6 +49,71 @@ definitions:
         type: string
     required:
     - name
+    type: object
+  response.CartFailedResponse:
+    properties:
+      code:
+        type: integer
+      code_type:
+        type: string
+      error_messages:
+        items:
+          type: string
+        type: array
+    type: object
+  response.CartResponse:
+    properties:
+      customer_id:
+        type: string
+      id:
+        type: string
+      product_id:
+        type: string
+      quantity:
+        type: integer
+    type: object
+  response.CartSearchResponse:
+    properties:
+      current_page:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/response.CartResponse'
+        type: array
+      limit:
+        type: integer
+      total_page:
+        type: integer
+      total_records:
+        type: integer
+    type: object
+  response.CartSuccessResponse:
+    properties:
+      code:
+        type: integer
+      code_type:
+        type: string
+      error_messages:
+        items:
+          type: string
+        type: array
+      result:
+        $ref: '#/definitions/response.CartResponse'
+        type: object
+    type: object
+  response.CartSuccessWithPagingResponse:
+    properties:
+      code:
+        type: integer
+      code_type:
+        type: string
+      error_messages:
+        items:
+          type: string
+        type: array
+      result:
+        $ref: '#/definitions/response.CartSearchResponse'
+        type: object
     type: object
   response.ProductFailedResponse:
     properties:
@@ -108,6 +198,113 @@ info:
   title: Swagger Example API
   version: "1.0"
 paths:
+  /cart:
+    post:
+      consumes:
+      - application/json
+      description: Create Cart
+      operationId: Create Cart
+      parameters:
+      - description: create cart info
+        in: body
+        name: CreateCart
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateCartRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CartSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.CartFailedResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.CartFailedResponse'
+      tags:
+      - Cart
+  /cart/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Find a Cart
+      operationId: Find a Cart
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CartSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.CartFailedResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.CartFailedResponse'
+      tags:
+      - Cart
+    put:
+      consumes:
+      - application/json
+      description: Update Cart
+      operationId: Update Cart
+      parameters:
+      - description: update cart info
+        in: body
+        name: CreateCart
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateCartRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CartSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.CartFailedResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.CartFailedResponse'
+      tags:
+      - Cart
+  /cart/find-all:
+    post:
+      consumes:
+      - application/json
+      description: Find All Cart
+      parameters:
+      - description: search cart info
+        in: body
+        name: Searchuser
+        required: true
+        schema:
+          $ref: '#/definitions/request.SearchParamCartRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CartSuccessWithPagingResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.CartFailedResponse'
+      tags:
+      - Cart
   /product:
     post:
       consumes:
