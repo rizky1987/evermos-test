@@ -9,7 +9,7 @@ import (
 )
 
 type Product struct {
-	Id           				*bson.ObjectId 			`bson:"_id,omitempty"`
+	Id           				bson.ObjectId 			`bson:"_id,omitempty"`
 	Code		 				string               	`bson:"code"`
 	Name		 				string               	`bson:"name"`
 	Quantity		 			int               		`bson:"quantity"`
@@ -26,6 +26,7 @@ type Product struct {
 func (entityStruct *Product) ValidateBeforeCreate(requestedStruct request.CreateProductRequest) []string {
 
 	entityStruct.CreatedAtUTC = helper.GetCurrentTimeUTC()
+	entityStruct.CreatedAtTimezone = helper.GenerateCurrentTimeZone(helper.DefaultTimeZone)
 	// Mapping All requested Struct Field to Entity Struct
 	entityStruct.MappingCreateDataToEntityStruct(requestedStruct)
 

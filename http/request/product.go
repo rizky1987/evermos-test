@@ -15,7 +15,7 @@ type SearchParamProductRequest struct {
 }
 
 type SearchParamWithPagingProductRequest struct {
-	Block		string      `json:"block"`
+	Name		string      `json:"name"`
 	Page 		int 		`json:"page"`
 	Limit 		int 		`json:"limit"`
 }

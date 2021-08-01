@@ -104,9 +104,9 @@ func (u *HTTPHelper) SendNotFoundRequest(c echo.Context, errMessages []string) e
 	return u.SendResponse(res)
 }
 
-// SendValidationError ...
+// SendInputValidationError ...
 // Send validation error response to consumers.
-func (u *HTTPHelper) SendValidationError(c echo.Context, validationErrors validator.ValidationErrors) error {
+func (u *HTTPHelper) SendInputValidationError(c echo.Context, validationErrors validator.ValidationErrors) error {
 	errorResponse := []string{}
 	errorTranslation := validationErrors.Translate(u.Translator)
 	for _, err := range validationErrors {

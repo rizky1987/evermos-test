@@ -16,6 +16,7 @@ type Info struct {
 }
 
 var ProductRepository interfaces.ProductInterface
+var InventoryAdjustmentRepository interfaces.InventoryAdjustmentInterface
 
 func (i *Info) Connect() (*mgo.Session, error) {
 	mongoDBDialInfo := &mgo.DialInfo{
@@ -35,5 +36,6 @@ func (i *Info) Connect() (*mgo.Session, error) {
 	session.SetMode(mgo.Monotonic, true)
 
 	ProductRepository = repository.NewProductsRepository(session, i.Database)
+	InventoryAdjustmentRepository = repository.NewInventoryAdjustmentsRepository(session, i.Database)
 	return session, err
 }

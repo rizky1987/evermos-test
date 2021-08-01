@@ -13,9 +13,10 @@ func RegisterProductRoutes(baseEndpointGroup *echo.Group, httpHelper httpHelper.
 	group := baseEndpointGroup.Group("product")
 	{
 		handler := api.ProductHandler{
-			Helper:         httpHelper,
-			Config:         config,
-			ProductRepository: mongo.ProductRepository,
+			Helper							: httpHelper,
+			Config							: config,
+			ProductRepository				: mongo.ProductRepository,
+			InventoryAdjustmentRepository 	: mongo.InventoryAdjustmentRepository,
 		}
 
 		group.POST("/find-all", handler.FindAll)

@@ -10,3 +10,8 @@ func ChangeBsonObjectIdToString(input bson.ObjectId) string {
 
 	return hexaString
 }
+
+func GenerateBsonObjectId() bson.ObjectId {
+
+	return bson.NewObjectId()
+}

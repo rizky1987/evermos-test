@@ -12,9 +12,10 @@ import (
 )
 
 type ProductHandler struct {
-	Helper         helper.HTTPHelper
-	Config         env.Config
-	ProductRepository interfaces.ProductInterface
+	Helper         					helper.HTTPHelper
+	Config         					env.Config
+	ProductRepository 				interfaces.ProductInterface
+	InventoryAdjustmentRepository 	interfaces.InventoryAdjustmentInterface
 }
 
 // @Tags Product
@@ -44,7 +45,7 @@ func (_h *ProductHandler) CreateProduct(c echo.Context) error {
 
 	if err = _h.Helper.Validate.Struct(input); err != nil {
 
-		return _h.Helper.SendValidationError(c, err.(validator.ValidationErrors))
+		return _h.Helper.SendInputValidationError(c, err.(validator.ValidationErrors))
 	}
 
 	// Begin Add Your Additional Logic Here
@@ -52,14 +53,27 @@ func (_h *ProductHandler) CreateProduct(c echo.Context) error {
 	// End Add Your Additional Logic Here
 
 
-	//begin save to DB
-	var newEntityToSave entity.Product
-	errResults = newEntityToSave.ValidateBeforeCreate(input)
 
+	//begin save to DB
+	var newMainEntityToSave entity.Product
+	errResults = newMainEntityToSave.ValidateBeforeCreate(input)
+
+	productId := helper.GenerateBsonObjectId()
+	newMainEntityToSave.Id = productId
 	if len(errResults) > 0 {
 		return _h.Helper.SendBadRequest(c, errResults)
 	}
-	_, err = _h.ProductRepository.Create(&newEntityToSave)
+	_, err = _h.ProductRepository.Create(&newMainEntityToSave)
+
+	inventoryAdjustment := entity.InventoryAdjustment{
+		ProductId	: productId,
+		Quantity	: input.Quantity,
+		Process		: helper.ProcessInText,
+		Note		: helper.NoteForNewProduct,
+	}
+
+	errResults = inventoryAdjustment.ValidateBeforeCreate()
+	_, err = _h.InventoryAdjustmentRepository.Create(&inventoryAdjustment)
 
 	if err != nil {
 
@@ -102,7 +116,7 @@ func (_h *ProductHandler) UpdateProduct(c echo.Context) error {
 	}
 
 	if err = _h.Helper.Validate.Struct(input); err != nil {
-		return _h.Helper.SendValidationError(c, err.(validator.ValidationErrors))
+		return _h.Helper.SendInputValidationError(c, err.(validator.ValidationErrors))
 	}
 
 	//begin save to DB
@@ -177,7 +191,7 @@ func (_h *ProductHandler) FindAll(c echo.Context) error {
 
 
 	if err = _h.Helper.Validate.Struct(input); err != nil {
-		return _h.Helper.SendValidationError(c, err.(validator.ValidationErrors))
+		return _h.Helper.SendInputValidationError(c, err.(validator.ValidationErrors))
 	}
 
 	entities, err, totalRecords := _h.ProductRepository.FindAll(input)

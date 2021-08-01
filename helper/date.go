@@ -2,8 +2,16 @@ package helper
 
 import "time"
 
+const DefaultTimeZone string = "Asia/Jakarta"
+
 func GetCurrentTimeUTC() time.Time {
 	return time.Now().In(time.UTC)
+}
+
+
+func GenerateCurrentTimeZone(timezone string) time.Time {
+	loc, _ := time.LoadLocation(timezone)
+	return time.Now().In(loc).Add(7 * time.Hour)
 }
 
 func GetCurrentTimeAsiaJakarta() time.Time {

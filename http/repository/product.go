@@ -65,13 +65,13 @@ func (repo *repositoryProducts) Update(id string, e *entity.Product) (bool, erro
 	return true, err
 }
 
-func (repo *repositoryProducts) FindByProductName(username string) (*entity.Product, error) {
+func (repo *repositoryProducts) FindByProductName(name string) (*entity.Product, error) {
 	ds := repo.dbSession.Copy()
 	defer ds.Close()
 	table := ds.DB(repo.database).C(collectionProduct)
 
 	var result entity.Product
-	err := table.Find(bson.M{"username": username}).One(&result)
+	err := table.Find(bson.M{"name": name}).One(&result)
 
 	return &result, err
 }
@@ -105,9 +105,9 @@ func (repo *repositoryProducts) FindAll(searchParam request.SearchParamWithPagin
 	pipeline := []bson.M{}
 	pipelineCount := []bson.M{}
 
-	block := helper.TrimWhiteSpace(searchParam.Block)
+	block := helper.TrimWhiteSpace(searchParam.Name)
 	if block != "" {
-		pipeline = append(pipeline, bson.M{"$match": bson.M{"block": block}})
+		pipeline = append(pipeline, bson.M{"$match": bson.M{"name": block}})
 		pipelineCount = append(pipelineCount, bson.M{"$match": bson.M{"block": block}})
 	}
 
@@ -157,9 +157,9 @@ func (repo *repositoryProducts) FindAllWithPaging(searchParam request.SearchPara
 
 	pipeline := []bson.M{}
 
-	block := helper.TrimWhiteSpace(searchParam.Block)
-	if block != "" {
-		pipeline = append(pipeline, bson.M{"$match": bson.M{"block": block}})
+	name := helper.TrimWhiteSpace(searchParam.Name)
+	if name != "" {
+		pipeline = append(pipeline, bson.M{"$match": bson.M{"name": name}})
 	}
 
 	grouping := bson.M{"$group": bson.M{
