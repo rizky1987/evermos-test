@@ -1,6 +1,8 @@
 package mongo
 
 import (
+	"evermos-test/http/interfaces"
+	"evermos-test/http/repository"
 	"time"
 
 	"gopkg.in/mgo.v2"
@@ -12,6 +14,8 @@ type Info struct {
 	Username string
 	Password string
 }
+
+var ProductRepository interfaces.ProductInterface
 
 func (i *Info) Connect() (*mgo.Session, error) {
 	mongoDBDialInfo := &mgo.DialInfo{
@@ -30,5 +34,6 @@ func (i *Info) Connect() (*mgo.Session, error) {
 	}
 	session.SetMode(mgo.Monotonic, true)
 
+	ProductRepository = repository.NewProductsRepository(session, i.Database)
 	return session, err
 }

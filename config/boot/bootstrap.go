@@ -3,10 +3,12 @@ package boot
 import (
 	"evermos-test/config/env"
 	"evermos-test/database/connection/mongo"
+	"evermos-test/docs"
 	httpHelper "evermos-test/helper"
 	_ "evermos-test/http/response"
 	"fmt"
 
+	route "evermos-test/config/routes"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -38,25 +40,31 @@ func (h *HTTPHandler) RegisterApiHandler() *HTTPHandler {
 		Password: h.Config.GetString("database.mongodb.password"),
 	}
 
-	_, err := dbMongo.Connect()
-	if err != nil {
-		fmt.Println("failed connect to mongoDB")
-		panic(err.Error())
-	}
+	dbMongo.Connect()
 
 	// End DB Connection
 
-	// Begin Repository List
+	basePathAndVersion := fmt.Sprintf("/%v/%v/",
+		h.Config.GetString("app.base_path"),
+		h.Config.GetString("app.version"),
+	)
 
-	// End repository List
-
+	//Begin Global Swagger Configuration
 	h.E.GET("/swagger/*", echoSwagger.WrapHandler)
+	docs.SwaggerInfo.Title = "API V1 Evermos Test"
+	docs.SwaggerInfo.Description = "This is API from Rizky Mochammad Soleh"
+	docs.SwaggerInfo.Version = "1.0"
+	docs.SwaggerInfo.Host =  h.Config.GetString("app.host")
+	docs.SwaggerInfo.BasePath = basePathAndVersion
+	docs.SwaggerInfo.Schemes = []string{"http", "https"}
+	//End Global Swagger Configuration
 
 	// Begin EndPoint List
+	baseEndpointGroup := h.E.Group(basePathAndVersion)
+	// baseEndpointGroup.Use(middlewareJWT.ValidateToken())
 
-	// Register User Endpoint
-
-	// End EndPoint List
+	// Begin Register All End Point
+	route.RegisterProductRoutes(baseEndpointGroup, h.Helper, h.Config)
 
 	return h
 }

@@ -1,11 +1,8 @@
 package helper
 
 import (
-	"math"
 	"net/http"
 	"reflect"
-	"strconv"
-	"strings"
 
 	ut "github.com/go-playground/universal-translator"
 	"github.com/labstack/echo/v4"
@@ -33,12 +30,12 @@ var (
 
 // ResponseHelper ...
 type ResponseHelper struct {
-	C        echo.Context
-	Status   string
-	Message  []string
-	Data     interface{}
-	Code     int // not the http code
-	CodeType string
+	C           echo.Context
+	Status      string
+	ErrMessages []string
+	Result      interface{}
+	Code        int // not the http code
+	CodeType    string
 }
 
 // HTTPHelper ...
@@ -77,23 +74,32 @@ func (u *HTTPHelper) GetStatusCode(err error) int {
 
 // SetResponse ...
 // Set response data.
-func (u *HTTPHelper) SetResponse(c echo.Context, status string, message []string, data interface{}, serverResponse ServerResponse) ResponseHelper {
-	return ResponseHelper{c, status, message, data, serverResponse.Code, serverResponse.Type}
+func (u *HTTPHelper) SetResponse(c echo.Context, errMessages []string, result interface{}, serverResponse ServerResponse) ResponseHelper {
+	return ResponseHelper{c, serverResponse.Type, errMessages, result, serverResponse.Code, serverResponse.Type}
 }
 
 // SendError ...
 // Send error response to consumers.
-func (u *HTTPHelper) SendError(c echo.Context, message []string, data interface{}) error {
-	res := u.SetResponse(c, `error`, message, data, BadRequestErrorServerResponse)
+func (u *HTTPHelper) SendError(c echo.Context, errMessages []string) error {
+	res := u.SetResponse(c, errMessages, nil,  ServiceUnavailableServerResponse)
 
 	return u.SendResponse(res)
 }
 
 // SendBadRequest ...
 // Send bad request response to consumers.
-func (u *HTTPHelper) SendBadRequest(c echo.Context, message string, data interface{}) error {
+func (u *HTTPHelper) SendBadRequest(c echo.Context, errMessages []string) error {
 
-	res := u.SetResponse(c, `error`, []string{message}, data, BadRequestErrorServerResponse)
+	res := u.SetResponse(c, errMessages, nil, BadRequestErrorServerResponse)
+
+	return u.SendResponse(res)
+}
+
+// SendNotFoundRequest ...
+// Send bad request response to consumers.
+func (u *HTTPHelper) SendNotFoundRequest(c echo.Context, errMessages []string) error {
+
+	res := u.SetResponse(c, errMessages, nil, NotFoundServerResponse)
 
 	return u.SendResponse(res)
 }
@@ -107,133 +113,73 @@ func (u *HTTPHelper) SendValidationError(c echo.Context, validationErrors valida
 		errorResponse = append(errorResponse, errorTranslation[err.Namespace()])
 	}
 
-	res := u.SetResponse(c, `error`, errorResponse, nil, BadRequestErrorServerResponse)
+	res := u.SetResponse(c, errorResponse, nil, BadRequestErrorServerResponse)
 
 	return u.SendResponse(res)
 }
 
 // SendDatabaseError ...
 // Send database error response to consumers.
-func (u *HTTPHelper) SendDatabaseError(c echo.Context, message []string, data interface{}) error {
-	return u.SendError(c, message, data)
+func (u *HTTPHelper) SendDatabaseError(c echo.Context, message []string, errMessages []string) error {
+	res := u.SetResponse(c, errMessages, nil, DatabaseErrorServerResponse)
+
+	return u.SendResponse(res)
 }
 
 // SendUnauthorizedError ...
 // Send unauthorized response to consumers.
-func (u *HTTPHelper) SendUnauthorizedError(c echo.Context, message []string, data interface{}) error {
-	return u.SendError(c, message, data)
+func (u *HTTPHelper) SendUnauthorizedError(c echo.Context, errMessages []string) error {
+	res := u.SetResponse(c,  errMessages, nil, UnauthorizedErrorServerResponse)
+
+	return u.SendResponse(res)
 }
 
-// SendNotFoundError ...
-// Send not found response to consumers.
-func (u *HTTPHelper) SendBadFoundError(c echo.Context, message []string, data interface{}) error {
-	return u.SendError(c, message, data)
-}
 
 // SendSuccess ...
 // Send success response to consumers.
-func (u *HTTPHelper) SendSuccess(c echo.Context, data interface{}) error {
-	res := u.SetResponse(c, `ok`, []string{}, data, SuccessServerResponse)
+func (u *HTTPHelper) SendSuccess(c echo.Context, dataResult interface{}) error {
+	res := u.SetResponse(c, []string{},dataResult, SuccessServerResponse)
 
 	return u.SendResponse(res)
+}
+
+// Error Middleware
+//Error Middleware
+func SendErrorMiddleware(c echo.Context, message string, serverResponse ServerResponse) error {
+	return c.JSON(serverResponse.Code, map[string]interface{}{
+		"code":      serverResponse.Code,
+		"code_type": serverResponse.Type,
+		"message":   []string{message},
+	})
 }
 
 // SendResponse ...
 // Send response
 func (u *HTTPHelper) SendResponse(res ResponseHelper) error {
-	if len(res.Message) == 0 {
-		res.Message = append(res.Message, `success`)
+	if len(res.ErrMessages) < 1 {
+		res.ErrMessages = []string{"success"}
 	}
 
-	var resCode int
 	if res.Code != 200 {
-		resCode = http.StatusBadRequest
-	} else {
-		resCode = http.StatusOK
+
+		return res.C.JSON(res.Code, map[string]interface{}{
+			"code"				: res.Code,
+			"code_type"			: res.CodeType,
+			"error_messages"	: res.ErrMessages,
+		})
 	}
 
-	return res.C.JSON(resCode, map[string]interface{}{
-		"code":      res.Code,
-		"code_type": res.CodeType,
-		"message":   res.Message,
-		"data":      res.Data,
+	return res.C.JSON(res.Code, map[string]interface{}{
+		"code"				: res.Code,
+		"code_type"			: res.CodeType,
+		"error_messages"	: []string{},
+		"result"			: res.Result,
 	})
+
+
 }
 
 func (u *HTTPHelper) EmptyJsonMap() map[string]interface{} {
 	return nil //make(map[string]interface{})
 }
 
-//get pagination URL
-func (u *HTTPHelper) GetPagingUrl(c echo.Context, page, limit int) string {
-
-	r := c.Request()
-	currentURL := c.Scheme() + "://" + r.Host + r.URL.Path + "?page={page}&limit={limit}"
-
-	defaultLinkReplacer := strings.NewReplacer("{page}", strconv.Itoa(page), "{limit}", strconv.Itoa(limit)).Replace(currentURL)
-
-	return defaultLinkReplacer
-}
-
-//Set paginantion response
-func (u *HTTPHelper) GeneratePaging(c echo.Context, prev, next, limit, page, totalRecord int) map[string]interface{} {
-
-	prevURL, nextURL, firstURL, lastURL := "", "", "", ""
-	paramPrevURL, paramNextURL, paramFirstURL, paramLastURL := "", "", "", ""
-
-	totalPages := int(math.Ceil(float64(totalRecord) / float64(limit)))
-
-	if page >= 1 {
-		prev = page - 1
-		if page < totalPages {
-			next = page + 1
-		} else {
-			next = totalPages
-		}
-	}
-
-	if totalPages >= page && page > 1 {
-		prevURL = u.GetPagingUrl(c, prev, limit)
-		paramPrevURL = "?page=" + strconv.Itoa(prev) + "&limit=" + strconv.Itoa(limit)
-	}
-
-	if totalPages > page {
-		nextURL = u.GetPagingUrl(c, next, limit)
-		paramNextURL = "?page=" + strconv.Itoa(next) + "&limit=" + strconv.Itoa(limit)
-	}
-
-	if totalPages >= page && page > 1 {
-		firstURL = u.GetPagingUrl(c, 1, limit)
-		paramFirstURL = "?page=1" + "&limit=" + strconv.Itoa(limit)
-	}
-
-	if totalPages >= page && totalPages != page {
-		lastURL = u.GetPagingUrl(c, totalPages, limit)
-		paramLastURL = "?page=" + strconv.Itoa(totalPages) + "&limit=" + strconv.Itoa(limit)
-	}
-
-	links := map[string]interface{}{
-		"previous": prevURL,
-		"next":     nextURL,
-		"first":    firstURL,
-		"last":     lastURL,
-	}
-
-	linkParameter := map[string]interface{}{
-		"previous": paramPrevURL,
-		"next":     paramNextURL,
-		"first":    paramFirstURL,
-		"last":     paramLastURL,
-	}
-
-	pagination := map[string]interface{}{
-		"total_records":  totalRecord,
-		"per_page":       limit,
-		"current_page":   page,
-		"total_pages":    totalPages,
-		"links":          links,
-		"link_parameter": linkParameter,
-	}
-
-	return pagination
-}

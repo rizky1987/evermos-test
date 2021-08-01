@@ -2,7 +2,9 @@
     "app": {
         "name": "evermos-test",
         "debug": true,
-        "host": "127.0.0.1:3090"
+        "host": "127.0.0.1:3090",
+        "base_path" : "api",
+        "version" : "v1"
     },
     "database": {
         "default": "mongodb",

@@ -1,90 +1,218 @@
+basePath: /v2
 definitions:
-  request.LoginRequest:
+  request.CreateProductRequest:
     properties:
-      password:
+      code:
         type: string
-      username:
+      name:
+        type: string
+      quantity:
+        type: integer
+    required:
+    - code
+    - name
+    - quantity
+    type: object
+  request.SearchParamProductRequest:
+    properties:
+      name:
+        type: string
+    type: object
+  request.UpdateProductRequest:
+    properties:
+      name:
         type: string
     required:
-    - password
-    - username
+    - name
     type: object
-  response.GlobalFailedResponse:
+  response.ProductFailedResponse:
     properties:
       code:
         type: integer
       code_type:
         type: string
-      message:
+      error_messages:
         items:
           type: string
         type: array
     type: object
-  response.UserResponse:
+  response.ProductResponse:
     properties:
-      address:
-        type: string
-      email:
-        type: string
-      fullname:
+      code:
         type: string
       id:
         type: string
-      nim:
+      name:
         type: string
-      password:
-        type: string
-      phone_number:
-        type: string
-      role:
-        type: string
-      token:
-        type: string
-      username:
-        type: string
+      on_hold_quantity:
+        type: integer
+      quantity:
+        type: integer
+      sold_quantity:
+        type: integer
     type: object
-  response.UserSuccessResponse:
+  response.ProductSearchResponse:
+    properties:
+      current_page:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/response.ProductResponse'
+        type: array
+      limit:
+        type: integer
+      total_page:
+        type: integer
+      total_records:
+        type: integer
+    type: object
+  response.ProductSuccessResponse:
     properties:
       code:
         type: integer
       code_type:
         type: string
-      data:
-        $ref: '#/definitions/response.UserResponse'
+      error_messages:
+        items:
+          type: string
+        type: array
+      result:
+        $ref: '#/definitions/response.ProductResponse'
         type: object
-      message:
-        type: string
     type: object
+  response.ProductSuccessWithPagingResponse:
+    properties:
+      code:
+        type: integer
+      code_type:
+        type: string
+      error_messages:
+        items:
+          type: string
+        type: array
+      result:
+        $ref: '#/definitions/response.ProductSearchResponse'
+        type: object
+    type: object
+host: petstore.swagger.io
 info:
-  contact: {}
-  license: {}
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample server Petstore server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Swagger Example API
+  version: "1.0"
 paths:
-  /api/v1/user/login:
+  /product:
     post:
       consumes:
       - application/json
-      description: User Login
-      operationId: login
+      description: Create Product
+      operationId: Create Product
       parameters:
-      - description: login info
+      - description: create product info
         in: body
-        name: userLogin
+        name: CreateProduct
         required: true
         schema:
-          $ref: '#/definitions/request.LoginRequest'
+          $ref: '#/definitions/request.CreateProductRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.UserSuccessResponse'
+            $ref: '#/definitions/response.ProductSuccessResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/response.GlobalFailedResponse'
+            $ref: '#/definitions/response.ProductFailedResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/response.GlobalFailedResponse'
+            $ref: '#/definitions/response.ProductFailedResponse'
+      tags:
+      - Product
+  /product/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Find a Product
+      operationId: Find a Product
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ProductSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ProductFailedResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ProductFailedResponse'
+      tags:
+      - Product
+    put:
+      consumes:
+      - application/json
+      description: Update Product
+      operationId: Update Product
+      parameters:
+      - description: update product info
+        in: body
+        name: CreateProduct
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateProductRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ProductSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ProductFailedResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ProductFailedResponse'
+      tags:
+      - Product
+  /product/find-all:
+    post:
+      consumes:
+      - application/json
+      description: Find All Product
+      parameters:
+      - description: search product info
+        in: body
+        name: Searchuser
+        required: true
+        schema:
+          $ref: '#/definitions/request.SearchParamProductRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ProductSuccessWithPagingResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ProductFailedResponse'
+      tags:
+      - Product
 swagger: "2.0"
