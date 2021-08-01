@@ -1,0 +1,18 @@
+{
+    "app": {
+        "name": "evermos-test",
+        "debug": true,
+        "host": "127.0.0.1:3090"
+    },
+    "database": {
+        "default": "mongodb",
+        "mongodb": {
+           "host": "127.0.0.1",
+            "database": "online_store",
+            "user": "",
+            "password": "",
+            "port": 27071
+        }
+    }
+
+}

@@ -1,0 +1,90 @@
+definitions:
+  request.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  response.GlobalFailedResponse:
+    properties:
+      code:
+        type: integer
+      code_type:
+        type: string
+      message:
+        items:
+          type: string
+        type: array
+    type: object
+  response.UserResponse:
+    properties:
+      address:
+        type: string
+      email:
+        type: string
+      fullname:
+        type: string
+      id:
+        type: string
+      nim:
+        type: string
+      password:
+        type: string
+      phone_number:
+        type: string
+      role:
+        type: string
+      token:
+        type: string
+      username:
+        type: string
+    type: object
+  response.UserSuccessResponse:
+    properties:
+      code:
+        type: integer
+      code_type:
+        type: string
+      data:
+        $ref: '#/definitions/response.UserResponse'
+        type: object
+      message:
+        type: string
+    type: object
+info:
+  contact: {}
+  license: {}
+paths:
+  /api/v1/user/login:
+    post:
+      consumes:
+      - application/json
+      description: User Login
+      operationId: login
+      parameters:
+      - description: login info
+        in: body
+        name: userLogin
+        required: true
+        schema:
+          $ref: '#/definitions/request.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.UserSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.GlobalFailedResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.GlobalFailedResponse'
+swagger: "2.0"
