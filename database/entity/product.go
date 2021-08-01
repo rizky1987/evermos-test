@@ -15,6 +15,8 @@ type Product struct {
 	Quantity		 			int               		`bson:"quantity"`
 	OnHoldQuantity		 		int               		`bson:"on_hold_quantity"`
 	SoldQuantity		 		int               		`bson:"sold_quantity"`
+	Price		 				int               		`bson:"price"`
+	MinimalStock		 		int               		`bson:"minimal_stock"`
 	CreatedAtUTC        		time.Time         		`bson:"created_at_utc"`
 	CreatedAtTimezone     		time.Time         		`bson:"created_at_timezone"`
 	UpdatedAtUTC        		*time.Time        		`bson:"updated_at_utc,omitempty"`
@@ -37,6 +39,7 @@ func (entityStruct *Product) ValidateBeforeCreate(requestedStruct request.Create
 	if entityStruct.Quantity < 1 {
 		errorResults = append(errorResults, "Product's quantity must greater than zero")
 	}
+
 	return errorResults
 }
 
@@ -44,6 +47,8 @@ func (entityStruct *Product) MappingCreateDataToEntityStruct(requestedStruct req
 
 	jsonString, _ := json.Marshal(requestedStruct)
 	json.Unmarshal(jsonString, &entityStruct)
+
+	entityStruct.MinimalStock = requestedStruct.MinimalStock
 }
 
 // End Create validation

@@ -261,10 +261,11 @@ func (_h *CartHandler) CheckoutCart(c echo.Context) error {
 
 	var wg sync.WaitGroup
 
+	paymentCode,_ := helper.GenerateRandomString(`[A-Z0-9]{7}-[A-Z0-9]{7}-[A-Z0-9]{7}-[A-Z0-9]{7}`)
 	for i:=0; i<len(input.Ids); i++ {
 		wg.Add(1)
 		go func() {
-			errCheckout := _h.CartRepository.Checkout(input.Ids[i])
+			errCheckout := _h.CartRepository.Checkout(input.Ids[i], paymentCode)
 			if errCheckout != nil {
 
 				errResults = append(errResults, errCheckout.Error())
@@ -272,8 +273,6 @@ func (_h *CartHandler) CheckoutCart(c echo.Context) error {
 			wg.Done()
 		}()
 		wg.Wait()
-
-
 	}
 	// End Add Your Additional Logic Here
 

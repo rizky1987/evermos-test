@@ -179,7 +179,7 @@ func (repo *repositoryCarts) FindAllWithPaging(searchParam request.SearchParamWi
 	return result, nil
 }
 
-func (repo *repositoryCarts) Checkout(cartId string) error {
+func (repo *repositoryCarts) Checkout(cartId, paymentCode string) error {
 
 	var err error
 
@@ -222,6 +222,7 @@ func (repo *repositoryCarts) Checkout(cartId string) error {
 		bson.M{"_id": cartEntity.Id},
 		bson.M{"$set": bson.M{
 			"status" : helper.CartStatusCheckout,
+			"payment_code" : paymentCode,
 		}},
 	)
 

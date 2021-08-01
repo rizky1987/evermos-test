@@ -12,6 +12,7 @@ type Cart struct {
 	ProductId		 			*bson.ObjectId          `bson:"product_id"`
 	CustomerId		 			*bson.ObjectId          `bson:"customer_id"`
 	Quantity		 			int               		`bson:"quantity"`
+	PaymentCode		 			string               	`bson:"payment_code"`
 	Status		 				string               	`bson:"status"`
 }
 

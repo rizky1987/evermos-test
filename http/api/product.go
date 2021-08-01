@@ -52,10 +52,9 @@ func (_h *ProductHandler) CreateProduct(c echo.Context) error {
 
 	// End Add Your Additional Logic Here
 
-
-
 	//begin save to DB
 	var newMainEntityToSave entity.Product
+
 	errResults = newMainEntityToSave.ValidateBeforeCreate(input)
 
 	productId := helper.GenerateBsonObjectId()

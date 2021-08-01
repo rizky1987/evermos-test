@@ -3,6 +3,7 @@ package response
 import (
 	"encoding/json"
 	"evermos-test/database/entity"
+	"evermos-test/helper"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -13,6 +14,7 @@ type ProductResponse struct {
 	Quantity		 	int               		`json:"quantity"`
 	OnHoldQuantity		int               		`json:"on_hold_quantity"`
 	SoldQuantity		int               		`json:"sold_quantity"`
+	Message				string					`json:"message"`
 }
 
 type ProductSuccessResponse struct {
@@ -52,9 +54,13 @@ type ProductFailedResponse struct {
 
 func (output *ProductResponse) ParsingEntityToResponse(inputedEntity *entity.Product) {
 
-	// fungsi ini masih dalam percaobaan jika ada yang tidak terparsing, silahkan parsing manual. :D
-
 	jsonString, _ := json.Marshal(inputedEntity)
+
+
+
 	json.Unmarshal(jsonString, &output)
+	if inputedEntity.Quantity <= inputedEntity.MinimalStock {
+		output.Message = helper.MinimalStockReachedMessage
+	}
 
 }

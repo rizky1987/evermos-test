@@ -1,0 +1,663 @@
+basePath: /v2
+definitions:
+  request.CheckoutCartRequest:
+    properties:
+      cart_ids:
+        items:
+          type: string
+        type: array
+    required:
+    - cart_ids
+    type: object
+  request.CreateCartRequest:
+    properties:
+      customer_id:
+        type: string
+      product_id:
+        type: string
+      quantity:
+        type: integer
+    required:
+    - customer_id
+    - product_id
+    - quantity
+    type: object
+  request.CreateCustomerRequest:
+    properties:
+      code:
+        type: string
+      name:
+        type: string
+    required:
+    - code
+    - name
+    type: object
+  request.CreateProductRequest:
+    properties:
+      code:
+        type: string
+      minimal_stock:
+        type: integer
+      name:
+        type: string
+      price:
+        type: integer
+      quantity:
+        type: integer
+    required:
+    - code
+    - minimal_stock
+    - name
+    - price
+    - quantity
+    type: object
+  request.SearchParamCartRequest:
+    properties:
+      name:
+        type: string
+    type: object
+  request.SearchParamCustomerRequest:
+    properties:
+      name:
+        type: string
+    type: object
+  request.SearchParamProductRequest:
+    properties:
+      name:
+        type: string
+    type: object
+  request.UpdateCartRequest:
+    properties:
+      product_id:
+        type: string
+    required:
+    - product_id
+    type: object
+  request.UpdateCustomerRequest:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  request.UpdateProductRequest:
+    properties:
+      minimal_stock:
+        type: integer
+      name:
+        type: string
+      price:
+        type: integer
+    required:
+    - minimal_stock
+    - name
+    - price
+    type: object
+  response.CartFailedResponse:
+    properties:
+      code:
+        type: integer
+      code_type:
+        type: string
+      error_messages:
+        items:
+          type: string
+        type: array
+    type: object
+  response.CartResponse:
+    properties:
+      customer_id:
+        type: string
+      id:
+        type: string
+      product_id:
+        type: string
+      quantity:
+        type: integer
+    type: object
+  response.CartSearchResponse:
+    properties:
+      current_page:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/response.CartResponse'
+        type: array
+      limit:
+        type: integer
+      total_page:
+        type: integer
+      total_records:
+        type: integer
+    type: object
+  response.CartSuccessResponse:
+    properties:
+      code:
+        type: integer
+      code_type:
+        type: string
+      error_messages:
+        items:
+          type: string
+        type: array
+      result:
+        $ref: '#/definitions/response.CartResponse'
+        type: object
+    type: object
+  response.CartSuccessWithPagingResponse:
+    properties:
+      code:
+        type: integer
+      code_type:
+        type: string
+      error_messages:
+        items:
+          type: string
+        type: array
+      result:
+        $ref: '#/definitions/response.CartSearchResponse'
+        type: object
+    type: object
+  response.CustomerFailedResponse:
+    properties:
+      code:
+        type: integer
+      code_type:
+        type: string
+      error_messages:
+        items:
+          type: string
+        type: array
+    type: object
+  response.CustomerResponse:
+    properties:
+      code:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    required:
+    - code
+    - name
+    type: object
+  response.CustomerSearchResponse:
+    properties:
+      current_page:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/response.CustomerResponse'
+        type: array
+      limit:
+        type: integer
+      total_page:
+        type: integer
+      total_records:
+        type: integer
+    type: object
+  response.CustomerSuccessResponse:
+    properties:
+      code:
+        type: integer
+      code_type:
+        type: string
+      error_messages:
+        items:
+          type: string
+        type: array
+      result:
+        $ref: '#/definitions/response.CustomerResponse'
+        type: object
+    type: object
+  response.CustomerSuccessWithPagingResponse:
+    properties:
+      code:
+        type: integer
+      code_type:
+        type: string
+      error_messages:
+        items:
+          type: string
+        type: array
+      result:
+        $ref: '#/definitions/response.CustomerSearchResponse'
+        type: object
+    type: object
+  response.ProductFailedResponse:
+    properties:
+      code:
+        type: integer
+      code_type:
+        type: string
+      error_messages:
+        items:
+          type: string
+        type: array
+    type: object
+  response.ProductResponse:
+    properties:
+      code:
+        type: string
+      id:
+        type: string
+      message:
+        type: string
+      name:
+        type: string
+      on_hold_quantity:
+        type: integer
+      quantity:
+        type: integer
+      sold_quantity:
+        type: integer
+    type: object
+  response.ProductSearchResponse:
+    properties:
+      current_page:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/response.ProductResponse'
+        type: array
+      limit:
+        type: integer
+      total_page:
+        type: integer
+      total_records:
+        type: integer
+    type: object
+  response.ProductSuccessResponse:
+    properties:
+      code:
+        type: integer
+      code_type:
+        type: string
+      error_messages:
+        items:
+          type: string
+        type: array
+      result:
+        $ref: '#/definitions/response.ProductResponse'
+        type: object
+    type: object
+  response.ProductSuccessWithPagingResponse:
+    properties:
+      code:
+        type: integer
+      code_type:
+        type: string
+      error_messages:
+        items:
+          type: string
+        type: array
+      result:
+        $ref: '#/definitions/response.ProductSearchResponse'
+        type: object
+    type: object
+host: petstore.swagger.io
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample server Petstore server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Swagger Example API
+  version: "1.0"
+paths:
+  /cart:
+    post:
+      consumes:
+      - application/json
+      description: Create Cart
+      operationId: Create Cart
+      parameters:
+      - description: create cart info
+        in: body
+        name: CreateCart
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateCartRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CartSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.CartFailedResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.CartFailedResponse'
+      tags:
+      - Cart
+  /cart/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Find a Cart
+      operationId: Find a Cart
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CartSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.CartFailedResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.CartFailedResponse'
+      tags:
+      - Cart
+    put:
+      consumes:
+      - application/json
+      description: Update Cart
+      operationId: Update Cart
+      parameters:
+      - description: update cart info
+        in: body
+        name: CreateCart
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateCartRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CartSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.CartFailedResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.CartFailedResponse'
+      tags:
+      - Cart
+  /cart/checkout:
+    post:
+      consumes:
+      - application/json
+      description: Checkout Cart
+      operationId: Checkout Cart
+      parameters:
+      - description: checkout cart
+        in: body
+        name: Cart
+        required: true
+        schema:
+          $ref: '#/definitions/request.CheckoutCartRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CartSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.CartFailedResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.CartFailedResponse'
+      tags:
+      - Cart
+  /cart/find-all:
+    post:
+      consumes:
+      - application/json
+      description: Find All Cart
+      parameters:
+      - description: search cart info
+        in: body
+        name: Searchuser
+        required: true
+        schema:
+          $ref: '#/definitions/request.SearchParamCartRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CartSuccessWithPagingResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.CartFailedResponse'
+      tags:
+      - Cart
+  /customer:
+    post:
+      consumes:
+      - application/json
+      description: Create Customer
+      operationId: Create Customer
+      parameters:
+      - description: create customer info
+        in: body
+        name: CreateCustomer
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateCustomerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CustomerSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.CustomerFailedResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.CustomerFailedResponse'
+      tags:
+      - Customer
+  /customer/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Find a Customer
+      operationId: Find a Customer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CustomerSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.CustomerFailedResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.CustomerFailedResponse'
+      tags:
+      - Customer
+    put:
+      consumes:
+      - application/json
+      description: Update Customer
+      operationId: Update Customer
+      parameters:
+      - description: update customer info
+        in: body
+        name: CreateCustomer
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateCustomerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CustomerSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.CustomerFailedResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.CustomerFailedResponse'
+      tags:
+      - Customer
+  /customer/find-all:
+    post:
+      consumes:
+      - application/json
+      description: Find All Customer
+      parameters:
+      - description: search customer info
+        in: body
+        name: Searchuser
+        required: true
+        schema:
+          $ref: '#/definitions/request.SearchParamCustomerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CustomerSuccessWithPagingResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.CustomerFailedResponse'
+      tags:
+      - Customer
+  /product:
+    post:
+      consumes:
+      - application/json
+      description: Create Product
+      operationId: Create Product
+      parameters:
+      - description: create product info
+        in: body
+        name: CreateProduct
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateProductRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ProductSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ProductFailedResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ProductFailedResponse'
+      tags:
+      - Product
+  /product/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Find a Product
+      operationId: Find a Product
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ProductSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ProductFailedResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ProductFailedResponse'
+      tags:
+      - Product
+    put:
+      consumes:
+      - application/json
+      description: Update Product
+      operationId: Update Product
+      parameters:
+      - description: update product info
+        in: body
+        name: CreateProduct
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateProductRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ProductSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ProductFailedResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ProductFailedResponse'
+      tags:
+      - Product
+  /product/find-all:
+    post:
+      consumes:
+      - application/json
+      description: Find All Product
+      parameters:
+      - description: search product info
+        in: body
+        name: Searchuser
+        required: true
+        schema:
+          $ref: '#/definitions/request.SearchParamProductRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.ProductSuccessWithPagingResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ProductFailedResponse'
+      tags:
+      - Product
+swagger: "2.0"
