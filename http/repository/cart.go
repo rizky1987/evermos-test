@@ -6,6 +6,7 @@ import (
 	"evermos-test/helper"
 	"evermos-test/http/interfaces"
 	"evermos-test/http/request"
+	"fmt"
 
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -27,11 +28,7 @@ func (repo *repositoryCarts) Create(e *entity.Cart) (bool, error) {
 	ds := repo.dbSession.Copy()
 	defer ds.Close()
 
-
-
 	table := ds.DB(repo.database).C(collectionCart)
-
-
 
 	if err = table.Insert(&e); err != nil {
 		return false, err
@@ -180,4 +177,53 @@ func (repo *repositoryCarts) FindAllWithPaging(searchParam request.SearchParamWi
 	}
 
 	return result, nil
+}
+
+func (repo *repositoryCarts) Checkout(cartId string) error {
+
+	var err error
+
+	ds := repo.dbSession.Copy()
+	defer ds.Close()
+	tableCart := ds.DB(repo.database).C(collectionCart)
+	tableProduct := ds.DB(repo.database).C(collectionProduct)
+
+	cartEntity, err := repo.FindById(cartId)
+
+	if err != nil {
+
+		return err
+	}
+
+	var productEntity entity.Product
+	err = tableProduct.Find(bson.M{"_id": cartEntity.ProductId}).One(&productEntity)
+	if err != nil {
+
+		return err
+	}
+	
+	if productEntity.Quantity < cartEntity.Quantity {
+
+		errMessage := fmt.Sprintf("This product's quantity only left %d", productEntity.Quantity)
+		return errors.New(errMessage)
+	}
+
+	totalOnHoldQuantity := productEntity.OnHoldQuantity + cartEntity.Quantity
+	totalQuantity := productEntity.Quantity - cartEntity.Quantity
+	err = tableProduct.Update(
+		bson.M{"_id": cartEntity.ProductId},
+		bson.M{"$set": bson.M{
+			"on_hold_quantity" : totalOnHoldQuantity,
+			"quantity" : totalQuantity,
+		}},
+	)
+
+	err = tableCart.Update(
+		bson.M{"_id": cartEntity.Id},
+		bson.M{"$set": bson.M{
+			"status" : helper.CartStatusCheckout,
+		}},
+	)
+
+	return nil
 }

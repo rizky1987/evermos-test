@@ -22,6 +22,7 @@ func RegisterCartRoutes(baseEndpointGroup *echo.Group, httpHelper httpHelper.HTT
 		group.POST("", handler.CreateCart)
 		group.PUT("/:id", handler.UpdateCart)
 		group.GET("/:id", handler.FindById)
+		group.POST("/checkout", handler.CheckoutCart)
 	}
 
 }

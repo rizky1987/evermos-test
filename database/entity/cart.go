@@ -12,6 +12,7 @@ type Cart struct {
 	ProductId		 			*bson.ObjectId          `bson:"product_id"`
 	CustomerId		 			*bson.ObjectId          `bson:"customer_id"`
 	Quantity		 			int               		`bson:"quantity"`
+	Status		 				string               	`bson:"status"`
 }
 
 // Begin Create Validation
@@ -33,6 +34,7 @@ func (entityStruct *Cart) ValidateBeforeCreate(requestedStruct request.CreateCar
 		errorResults = append(errorResults, helper.ErrorIsNOTObjectIdHex(requestedStruct.CustomerId))
 	}
 
+	entityStruct.Status = helper.CartStatusNew
 	entityStruct.ProductId = productId
 	entityStruct.CustomerId = customerId
 	return errorResults

@@ -18,6 +18,7 @@ type Info struct {
 var ProductRepository interfaces.ProductInterface
 var InventoryAdjustmentRepository interfaces.InventoryAdjustmentInterface
 var CartRepository interfaces.CartInterface
+var CustomerRepository interfaces.CustomerInterface
 
 func (i *Info) Connect() (*mgo.Session, error) {
 	mongoDBDialInfo := &mgo.DialInfo{
@@ -39,5 +40,6 @@ func (i *Info) Connect() (*mgo.Session, error) {
 	ProductRepository = repository.NewProductsRepository(session, i.Database)
 	InventoryAdjustmentRepository = repository.NewInventoryAdjustmentsRepository(session, i.Database)
 	CartRepository = repository.NewCartsRepository(session, i.Database)
+	CustomerRepository = repository.NewCustomersRepository(session, i.Database)
 	return session, err
 }

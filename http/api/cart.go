@@ -9,6 +9,7 @@ import (
 	"evermos-test/http/response"
 	"github.com/labstack/echo/v4"
 	"gopkg.in/go-playground/validator.v9"
+	"sync"
 )
 
 type CartHandler struct {
@@ -226,6 +227,67 @@ func (_h *CartHandler) FindById(c echo.Context) error {
 
 }
 
+// @Tags Cart
+// @Description Checkout Cart
+// @ID Checkout Cart
+// @Accept  json
+// @Produce  json
+// @Param Checkout Cart body request.CheckoutCartRequest true "checkout cart"
+// @Success 200 {object} response.CartSuccessResponse
+// @Failure 400 {object} response.CartFailedResponse
+// @Failure 404 {object} response.CartFailedResponse
+// @Router /cart/checkout [post]
+func (_h *CartHandler) CheckoutCart(c echo.Context) error {
+
+	var (
+		errResults []string
+		err        error
+		input      request.CheckoutCartRequest
+	)
+
+	err = c.Bind(&input)
+	if err != nil {
+
+		errResults = append(errResults, err.Error())
+		return _h.Helper.SendBadRequest(c, errResults)
+	}
+
+	if err = _h.Helper.Validate.Struct(input); err != nil {
+
+		return _h.Helper.SendInputValidationError(c, err.(validator.ValidationErrors))
+	}
+
+	// Begin Add Your Additional Logic Here
+
+	var wg sync.WaitGroup
+
+	for i:=0; i<len(input.Ids); i++ {
+		wg.Add(1)
+		go func() {
+			errCheckout := _h.CartRepository.Checkout(input.Ids[i])
+			if errCheckout != nil {
+
+				errResults = append(errResults, errCheckout.Error())
+			}
+			wg.Done()
+		}()
+		wg.Wait()
+
+
+	}
+	// End Add Your Additional Logic Here
+
+	if len(errResults) > 0 {
+
+		return _h.Helper.SendBadRequest(c, errResults)
+	}
+	// End Save To DB
+
+	return _h.Helper.SendSuccess(c, nil)
+
+}
+
+
 func (_h *CartHandler) CartFindById(id string) (*response.CartResponse, string) {
 
 	entityResult, err := _h.CartRepository.FindById(id)
@@ -247,3 +309,4 @@ func (_h *CartHandler) CartFindById(id string) (*response.CartResponse, string) 
 
 	return result, ""
 }
+

@@ -11,5 +11,6 @@ type CartInterface interface {
 	Create(e *entity.Cart) (bool, error)
 	Update(id string, e *entity.Cart) (bool, error)
 	FindAll(searchParam request.SearchParamWithPagingCartRequest) ([]*entity.Cart, error, int)
+	Checkout(cartId string) error
 }
 

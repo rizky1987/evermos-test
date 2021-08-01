@@ -6,6 +6,10 @@ type CreateCartRequest struct {
 	Quantity		int        				`json:"quantity" validate:"required"`
 }
 
+type CheckoutCartRequest struct {
+	Ids			    []string            	`json:"cart_ids" validate:"required"`
+}
+
 type UpdateCartRequest struct {
 	ProductId		string            		`json:"product_id" validate:"required"`
 }
