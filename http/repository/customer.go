@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"errors"
 	"evermos-test/database/entity"
 	"evermos-test/helper"
 	"evermos-test/http/interfaces"
@@ -41,20 +40,14 @@ func (repo *repositoryCustomers) Create(e *entity.Customer) (bool, error) {
 	return true, err
 }
 
-func (repo *repositoryCustomers) Update(id string, e *entity.Customer) (bool, error) {
+func (repo *repositoryCustomers) Update(id *bson.ObjectId, e *entity.Customer) (bool, error) {
 	var err error
-
-	isObjectIDHex := helper.IsObjectIdHexValidation(id)
-
-	if !isObjectIDHex {
-		return false, errors.New(helper.ErrorIsNOTObjectIdHex(id))
-	}
 
 	ds := repo.dbSession.Copy()
 	defer ds.Close()
 	table := ds.DB(repo.database).C(collectionCustomer)
 	err = table.Update(
-		bson.M{"_id": bson.ObjectIdHex(id)},
+		bson.M{"_id": id},
 		bson.M{"$set": &e},
 	)
 
@@ -76,20 +69,14 @@ func (repo *repositoryCustomers) FindByCustomerName(name string) (*entity.Custom
 	return &result, err
 }
 
-func (repo *repositoryCustomers) FindById(id string) (*entity.Customer, error) {
-
-	isObjectIDHex := helper.IsObjectIdHexValidation(id)
-
-	if !isObjectIDHex {
-		return nil, errors.New(helper.ErrorIsNOTObjectIdHex(id))
-	}
+func (repo *repositoryCustomers) FindById(id *bson.ObjectId) (*entity.Customer, error) {
 
 	ds := repo.dbSession.Copy()
 	defer ds.Close()
 	table := ds.DB(repo.database).C(collectionCustomer)
 
 	var result entity.Customer
-	err := table.Find(bson.M{"_id": bson.ObjectIdHex(id)}).One(&result)
+	err := table.Find(bson.M{"_id": id}).One(&result)
 
 	return &result, err
 }

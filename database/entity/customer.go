@@ -9,7 +9,7 @@ import (
 )
 
 type Customer struct {
-	Id           				bson.ObjectId 			`bson:"_id,omitempty"`
+	Id           				*bson.ObjectId 			`bson:"_id,omitempty"`
 	Code		 				string               	`bson:"code"`
 	Name		 				string               	`bson:"name"`
 	CreatedAtUTC        		time.Time         		`bson:"created_at_utc"`

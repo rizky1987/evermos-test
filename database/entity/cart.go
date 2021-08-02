@@ -12,7 +12,7 @@ type Cart struct {
 	ProductId		 			*bson.ObjectId          `bson:"product_id"`
 	CustomerId		 			*bson.ObjectId          `bson:"customer_id"`
 	Quantity		 			int               		`bson:"quantity"`
-	PaymentCode		 			string               	`bson:"payment_code"`
+	PaymentCode		 			string               	`bson:"payment_code,omitempty"`
 	Status		 				string               	`bson:"status"`
 }
 
@@ -26,13 +26,13 @@ func (entityStruct *Cart) ValidateBeforeCreate(requestedStruct request.CreateCar
 	errorResults := []string{}
 
 	productId, errProductId := helper.ChangeStringOfObjectIdToBsonObjectId(requestedStruct.ProductId)
-	if errProductId != "" {
-		errorResults = append(errorResults, helper.ErrorIsNOTObjectIdHex(requestedStruct.ProductId))
+	if errProductId != nil {
+		errorResults = append(errorResults, errProductId.Error())
 	}
 
 	customerId, errCustomerId := helper.ChangeStringOfObjectIdToBsonObjectId(requestedStruct.CustomerId)
-	if errCustomerId != "" {
-		errorResults = append(errorResults, helper.ErrorIsNOTObjectIdHex(requestedStruct.CustomerId))
+	if errCustomerId != nil {
+		errorResults = append(errorResults, errCustomerId.Error())
 	}
 
 	entityStruct.Status = helper.CartStatusNew

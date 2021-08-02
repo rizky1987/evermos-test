@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"errors"
 	"evermos-test/database/entity"
 	"evermos-test/helper"
 	"evermos-test/http/interfaces"
@@ -17,6 +16,7 @@ type repositoryProducts struct {
 }
 
 var collectionProduct = "products"
+var collectionPaymentRequests = "payment_requests"
 
 func NewProductsRepository(sess *mgo.Session, database string) interfaces.ProductInterface {
 	return &repositoryProducts{sess, database}
@@ -41,20 +41,14 @@ func (repo *repositoryProducts) Create(e *entity.Product) (bool, error) {
 	return true, err
 }
 
-func (repo *repositoryProducts) Update(id string, e *entity.Product) (bool, error) {
+func (repo *repositoryProducts) Update(id *bson.ObjectId, e *entity.Product) (bool, error) {
+
 	var err error
-
-	isObjectIDHex := helper.IsObjectIdHexValidation(id)
-
-	if !isObjectIDHex {
-		return false, errors.New(helper.ErrorIsNOTObjectIdHex(id))
-	}
-
 	ds := repo.dbSession.Copy()
 	defer ds.Close()
 	table := ds.DB(repo.database).C(collectionProduct)
 	err = table.Update(
-		bson.M{"_id": bson.ObjectIdHex(id)},
+		bson.M{"_id": id},
 		bson.M{"$set": &e},
 	)
 
@@ -76,20 +70,16 @@ func (repo *repositoryProducts) FindByProductName(name string) (*entity.Product,
 	return &result, err
 }
 
-func (repo *repositoryProducts) FindById(id string) (*entity.Product, error) {
+func (repo *repositoryProducts) FindById(id *bson.ObjectId) (*entity.Product, error) {
 
-	isObjectIDHex := helper.IsObjectIdHexValidation(id)
 
-	if !isObjectIDHex {
-		return nil, errors.New(helper.ErrorIsNOTObjectIdHex(id))
-	}
 
 	ds := repo.dbSession.Copy()
 	defer ds.Close()
 	table := ds.DB(repo.database).C(collectionProduct)
 
 	var result entity.Product
-	err := table.Find(bson.M{"_id": bson.ObjectIdHex(id)}).One(&result)
+	err := table.Find(bson.M{"_id": id}).One(&result)
 
 	return &result, err
 }

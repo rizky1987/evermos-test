@@ -118,8 +118,14 @@ func (_h *ProductHandler) UpdateProduct(c echo.Context) error {
 		return _h.Helper.SendInputValidationError(c, err.(validator.ValidationErrors))
 	}
 
+	productId, errProductId := helper.ChangeStringOfObjectIdToBsonObjectId(id)
+	if errProductId != nil {
+		errResults = append(errResults, errProductId.Error())
+		return _h.Helper.SendBadRequest(c, errResults)
+	}
+
 	//begin save to DB
-	entityToUpdate, err := _h.ProductRepository.FindById(id)
+	entityToUpdate, err := _h.ProductRepository.FindById(productId)
 	if entityToUpdate == nil {
 
 		errResults = append(errResults, helper.ErrorNotFound(id))
@@ -143,7 +149,7 @@ func (_h *ProductHandler) UpdateProduct(c echo.Context) error {
 	// End Add Your Additional Logic Here
 	entityToUpdate.ValidateBeforeUpdate(input)
 
-	_, err = _h.ProductRepository.Update(id, entityToUpdate)
+	_, err = _h.ProductRepository.Update(productId, entityToUpdate)
 
 	if err != nil {
 
@@ -243,7 +249,12 @@ func (_h *ProductHandler) FindById(c echo.Context) error {
 
 func (_h *ProductHandler) ProductFindById(id string) (*response.ProductResponse, string) {
 
-	entityResult, err := _h.ProductRepository.FindById(id)
+	productId, errProductId := helper.ChangeStringOfObjectIdToBsonObjectId(id)
+	if  errProductId != nil {
+		return nil, errProductId.Error()
+	}
+
+	entityResult, err := _h.ProductRepository.FindById(productId)
 	if entityResult == nil {
 		return nil, helper.ErrorNotFound(id)
 	}

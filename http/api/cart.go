@@ -7,14 +7,17 @@ import (
 	"evermos-test/http/interfaces"
 	"evermos-test/http/request"
 	"evermos-test/http/response"
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"gopkg.in/go-playground/validator.v9"
+	"gopkg.in/mgo.v2/bson"
 	"sync"
 )
 
 type CartHandler struct {
 	Helper         					helper.HTTPHelper
 	CartRepository 					interfaces.CartInterface
+	ProductRepository 				interfaces.ProductInterface
 	Config         					env.Config
 }
 
@@ -104,8 +107,14 @@ func (_h *CartHandler) UpdateCart(c echo.Context) error {
 		return _h.Helper.SendInputValidationError(c, err.(validator.ValidationErrors))
 	}
 
+	cartId, errCartId := helper.ChangeStringOfObjectIdToBsonObjectId(id)
+	if errCartId != nil {
+		errResults = append(errResults, errCartId.Error())
+		return _h.Helper.SendBadRequest(c, errResults)
+	}
+
 	//begin save to DB
-	entityToUpdate, err := _h.CartRepository.FindById(id)
+	entityToUpdate, err := _h.CartRepository.FindById(cartId)
 	if entityToUpdate == nil {
 
 		errResults = append(errResults, helper.ErrorNotFound(id))
@@ -129,7 +138,7 @@ func (_h *CartHandler) UpdateCart(c echo.Context) error {
 	// End Add Your Additional Logic Here
 	entityToUpdate.ValidateBeforeUpdate(input)
 
-	_, err = _h.CartRepository.Update(id, entityToUpdate)
+	_, err = _h.CartRepository.Update(cartId, entityToUpdate)
 
 	if err != nil {
 
@@ -259,21 +268,9 @@ func (_h *CartHandler) CheckoutCart(c echo.Context) error {
 
 	// Begin Add Your Additional Logic Here
 
-	var wg sync.WaitGroup
+	cartIds := helper.ChangeArrayOfHexaIdToBsonObjectId(input.Ids)
+	errResults = _h.Checkout(cartIds)
 
-	paymentCode,_ := helper.GenerateRandomString(`[A-Z0-9]{7}-[A-Z0-9]{7}-[A-Z0-9]{7}-[A-Z0-9]{7}`)
-	for i:=0; i<len(input.Ids); i++ {
-		wg.Add(1)
-		go func() {
-			errCheckout := _h.CartRepository.Checkout(input.Ids[i], paymentCode)
-			if errCheckout != nil {
-
-				errResults = append(errResults, errCheckout.Error())
-			}
-			wg.Done()
-		}()
-		wg.Wait()
-	}
 	// End Add Your Additional Logic Here
 
 	if len(errResults) > 0 {
@@ -286,10 +283,69 @@ func (_h *CartHandler) CheckoutCart(c echo.Context) error {
 
 }
 
+func (_h *CartHandler) Checkout(cartIds []*bson.ObjectId) []string {
+
+	var wg sync.WaitGroup
+	var totalPayment int
+	var errResults []string
+
+	paymentCode,_ := helper.GenerateRandomString(`[A-Z0-9]{7}-[A-Z0-9]{7}-[A-Z0-9]{7}-[A-Z0-9]{7}`)
+
+	for i:=0; i<len(cartIds); i++ {
+		wg.Add(1)
+		go func() {
+
+			cartEntity, errCartEntity := _h.CartRepository.FindById(cartIds[i])
+			if errCartEntity != nil {
+
+				errResults = append(errResults, errCartEntity.Error())
+			}
+
+			productEntity, errProductEntity := _h.ProductRepository.FindById(cartEntity.Id)
+			if errProductEntity != nil {
+
+				errResults = append(errResults, errProductEntity.Error())
+			}
+
+			if productEntity.Quantity < cartEntity.Quantity {
+
+				errMessage := fmt.Sprintf("This product's quantity only left %d", productEntity.Quantity)
+				errResults = append(errResults, errMessage)
+			}
+
+			productEntity.OnHoldQuantity = productEntity.OnHoldQuantity + cartEntity.Quantity
+			productEntity.Quantity = productEntity.Quantity - cartEntity.Quantity
+
+			_h.ProductRepository.Update(productEntity.Id, productEntity)
+
+			totalPayment = totalPayment + (productEntity.Price * cartEntity.Quantity)
+			wg.Done()
+		}()
+	}
+
+	wg.Wait()
+
+	if len(errResults) > 0 {
+		return errResults
+	}
+
+	err := _h.CartRepository.Checkout(cartIds, paymentCode)
+	if err != nil {
+		errResults = append(errResults, err.Error())
+	}
+
+	return errResults
+}
+
 
 func (_h *CartHandler) CartFindById(id string) (*response.CartResponse, string) {
 
-	entityResult, err := _h.CartRepository.FindById(id)
+	cartId, errCartId := helper.ChangeStringOfObjectIdToBsonObjectId(id)
+	if errCartId != nil {
+		return nil, errCartId.Error()
+	}
+
+	entityResult, err := _h.CartRepository.FindById(cartId)
 	if entityResult == nil {
 		return nil, helper.ErrorNotFound(id)
 	}

@@ -3,14 +3,14 @@ package interfaces
 import (
 	"evermos-test/database/entity"
 	"evermos-test/http/request"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type CartInterface interface {
-	FindByCartName(block string) (*entity.Cart, error)
-	FindById(id string) (*entity.Cart, error)
+	FindById(id *bson.ObjectId) (*entity.Cart, error)
 	Create(e *entity.Cart) (bool, error)
-	Update(id string, e *entity.Cart) (bool, error)
+	Update(id *bson.ObjectId, e *entity.Cart) (bool, error)
 	FindAll(searchParam request.SearchParamWithPagingCartRequest) ([]*entity.Cart, error, int)
-	Checkout(cartId, paymentCode string) error
+	Checkout(cartId []*bson.ObjectId, paymentCode string) error
 }
 

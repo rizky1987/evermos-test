@@ -1,7 +1,6 @@
 package helper
 
 import (
-	"fmt"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -38,9 +37,9 @@ func RemoveDuplicateArrayOfStringOfBsonIdAndChangeToBsonId(inputStringArrayStatu
 	for key, _ := range encountered {
 
 		objectId, errorObjectId :=ChangeStringOfObjectIdToBsonObjectId(key)
-		if errorObjectId != "" {
+		if errorObjectId != nil {
 
-			errorResults = append(errorResults, errorObjectId)
+			errorResults = append(errorResults, errorObjectId.Error())
 		} else {
 
 			results = append(results, objectId)
@@ -48,20 +47,6 @@ func RemoveDuplicateArrayOfStringOfBsonIdAndChangeToBsonId(inputStringArrayStatu
 	}
 
 	return results, errorResults
-}
-
-func ChangeStringOfObjectIdToBsonObjectId(input string) (*bson.ObjectId, string){
-
-	input = TrimWhiteSpace(input)
-	isObjectIdHex := bson.IsObjectIdHex(input)
-	if isObjectIdHex {
-		result := bson.ObjectIdHex(input)
-
-		return &result, ""
-	}
-
-	errMessage := fmt.Sprintf("Cannot convert %v to bson Id", input)
-	return nil, errMessage
 }
 
 func RemoveDuplicateArrayTrimWhiteSpace(inputStringArrayStatus []string) []string {

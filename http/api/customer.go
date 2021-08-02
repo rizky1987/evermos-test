@@ -109,8 +109,14 @@ func (_h *CustomerHandler) UpdateCustomer(c echo.Context) error {
 		return _h.Helper.SendInputValidationError(c, err.(validator.ValidationErrors))
 	}
 
+	customerId, errCustomertId := helper.ChangeStringOfObjectIdToBsonObjectId(id)
+	if errCustomertId != nil {
+		errResults = append(errResults, errCustomertId.Error())
+		return _h.Helper.SendBadRequest(c, errResults)
+	}
+
 	//begin save to DB
-	entityToUpdate, err := _h.CustomerRepository.FindById(id)
+	entityToUpdate, err := _h.CustomerRepository.FindById(customerId)
 	if entityToUpdate == nil {
 
 		errResults = append(errResults, helper.ErrorNotFound(id))
@@ -134,7 +140,7 @@ func (_h *CustomerHandler) UpdateCustomer(c echo.Context) error {
 	// End Add Your Additional Logic Here
 	entityToUpdate.ValidateBeforeUpdate(input)
 
-	_, err = _h.CustomerRepository.Update(id, entityToUpdate)
+	_, err = _h.CustomerRepository.Update(customerId, entityToUpdate)
 
 	if err != nil {
 
@@ -234,7 +240,12 @@ func (_h *CustomerHandler) FindById(c echo.Context) error {
 
 func (_h *CustomerHandler) CustomerFindById(id string) (*response.CustomerResponse, string) {
 
-	entityResult, err := _h.CustomerRepository.FindById(id)
+	customerId, errCustomerId := helper.ChangeStringOfObjectIdToBsonObjectId(id)
+	if errCustomerId != nil {
+		return nil, errCustomerId.Error()
+	}
+
+	entityResult, err := _h.CustomerRepository.FindById(customerId)
 	if entityResult == nil {
 		return nil, helper.ErrorNotFound(id)
 	}

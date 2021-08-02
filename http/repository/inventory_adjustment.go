@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"errors"
 	"evermos-test/database/entity"
 	"evermos-test/helper"
 	"evermos-test/http/interfaces"
@@ -46,20 +45,14 @@ func (repo *repositoryInventoryAdjustments) FindByInventoryAdjustmentName(userna
 	return &result, err
 }
 
-func (repo *repositoryInventoryAdjustments) FindById(id string) (*entity.InventoryAdjustment, error) {
-
-	isObjectIDHex := helper.IsObjectIdHexValidation(id)
-
-	if !isObjectIDHex {
-		return nil, errors.New(helper.ErrorIsNOTObjectIdHex(id))
-	}
+func (repo *repositoryInventoryAdjustments) FindById(id *bson.ObjectId) (*entity.InventoryAdjustment, error) {
 
 	ds := repo.dbSession.Copy()
 	defer ds.Close()
 	table := ds.DB(repo.database).C(collectionInventoryAdjustment)
 
 	var result entity.InventoryAdjustment
-	err := table.Find(bson.M{"_id": bson.ObjectIdHex(id)}).One(&result)
+	err := table.Find(bson.M{"_id": id}).One(&result)
 
 	return &result, err
 }

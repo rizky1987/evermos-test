@@ -7,8 +7,8 @@ import (
 )
 
 type InventoryAdjustment struct {
-	Id                		bson.ObjectId  `bson:"_id,omitempty"`
-	ProductId         		bson.ObjectId  `bson:"product_id"`
+	Id                		*bson.ObjectId  `bson:"_id,omitempty"`
+	ProductId         		*bson.ObjectId  `bson:"product_id"`
 	Process           		string         `bson:"process"`
 	Quantity          		int            `bson:"quantity"`
 	Note    				string         `bson:"note"`

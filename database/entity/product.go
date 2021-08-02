@@ -9,7 +9,7 @@ import (
 )
 
 type Product struct {
-	Id           				bson.ObjectId 			`bson:"_id,omitempty"`
+	Id           				*bson.ObjectId 			`bson:"_id,omitempty"`
 	Code		 				string               	`bson:"code"`
 	Name		 				string               	`bson:"name"`
 	Quantity		 			int               		`bson:"quantity"`

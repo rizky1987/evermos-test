@@ -1,13 +1,10 @@
 package repository
 
 import (
-	"errors"
 	"evermos-test/database/entity"
 	"evermos-test/helper"
 	"evermos-test/http/interfaces"
 	"evermos-test/http/request"
-	"fmt"
-
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -37,20 +34,14 @@ func (repo *repositoryCarts) Create(e *entity.Cart) (bool, error) {
 	return true, err
 }
 
-func (repo *repositoryCarts) Update(id string, e *entity.Cart) (bool, error) {
+func (repo *repositoryCarts) Update(id *bson.ObjectId, e *entity.Cart) (bool, error) {
 	var err error
-
-	isObjectIDHex := helper.IsObjectIdHexValidation(id)
-
-	if !isObjectIDHex {
-		return false, errors.New(helper.ErrorIsNOTObjectIdHex(id))
-	}
 
 	ds := repo.dbSession.Copy()
 	defer ds.Close()
 	table := ds.DB(repo.database).C(collectionCart)
 	err = table.Update(
-		bson.M{"_id": bson.ObjectIdHex(id)},
+		bson.M{"_id": id},
 		bson.M{"$set": &e},
 	)
 
@@ -72,20 +63,14 @@ func (repo *repositoryCarts) FindByCartName(name string) (*entity.Cart, error) {
 	return &result, err
 }
 
-func (repo *repositoryCarts) FindById(id string) (*entity.Cart, error) {
-
-	isObjectIDHex := helper.IsObjectIdHexValidation(id)
-
-	if !isObjectIDHex {
-		return nil, errors.New(helper.ErrorIsNOTObjectIdHex(id))
-	}
+func (repo *repositoryCarts) FindById(id *bson.ObjectId) (*entity.Cart, error) {
 
 	ds := repo.dbSession.Copy()
 	defer ds.Close()
 	table := ds.DB(repo.database).C(collectionCart)
 
 	var result entity.Cart
-	err := table.Find(bson.M{"_id": bson.ObjectIdHex(id)}).One(&result)
+	err := table.Find(bson.M{"_id": id}).One(&result)
 
 	return &result, err
 }
@@ -179,52 +164,28 @@ func (repo *repositoryCarts) FindAllWithPaging(searchParam request.SearchParamWi
 	return result, nil
 }
 
-func (repo *repositoryCarts) Checkout(cartId, paymentCode string) error {
+func (repo *repositoryCarts) Checkout(cartIds []*bson.ObjectId, paymentCode string) error {
 
 	var err error
 
 	ds := repo.dbSession.Copy()
 	defer ds.Close()
-	tableCart := ds.DB(repo.database).C(collectionCart)
-	tableProduct := ds.DB(repo.database).C(collectionProduct)
+	table := ds.DB(repo.database).C(collectionCart)
 
-	cartEntity, err := repo.FindById(cartId)
+	who := bson.M{"_id" : bson.M{"in" : cartIds}}
+	change := bson.M{"$set": bson.M{
+		"status"		: helper.CartStatusCheckout,
+		"payment_code"	: paymentCode,
+	}}
+	_, err = table.UpdateAll(
+		who,
+		change,
+	)
 
 	if err != nil {
 
 		return err
 	}
-
-	var productEntity entity.Product
-	err = tableProduct.Find(bson.M{"_id": cartEntity.ProductId}).One(&productEntity)
-	if err != nil {
-
-		return err
-	}
-	
-	if productEntity.Quantity < cartEntity.Quantity {
-
-		errMessage := fmt.Sprintf("This product's quantity only left %d", productEntity.Quantity)
-		return errors.New(errMessage)
-	}
-
-	totalOnHoldQuantity := productEntity.OnHoldQuantity + cartEntity.Quantity
-	totalQuantity := productEntity.Quantity - cartEntity.Quantity
-	err = tableProduct.Update(
-		bson.M{"_id": cartEntity.ProductId},
-		bson.M{"$set": bson.M{
-			"on_hold_quantity" : totalOnHoldQuantity,
-			"quantity" : totalQuantity,
-		}},
-	)
-
-	err = tableCart.Update(
-		bson.M{"_id": cartEntity.Id},
-		bson.M{"$set": bson.M{
-			"status" : helper.CartStatusCheckout,
-			"payment_code" : paymentCode,
-		}},
-	)
 
 	return nil
 }
