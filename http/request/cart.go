@@ -19,7 +19,7 @@ type SearchParamCartRequest struct {
 }
 
 type SearchParamWithPagingCartRequest struct {
-	Name		string      `json:"name"`
-	Page 		int 		`json:"page"`
-	Limit 		int 		`json:"limit"`
+	PaymentCode		string      `json:"payment_code"`
+	Page 			int 		`json:"page"`
+	Limit 			int 		`json:"limit"`
 }

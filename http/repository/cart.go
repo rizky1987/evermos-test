@@ -20,6 +20,7 @@ func NewCartsRepository(sess *mgo.Session, database string) interfaces.CartInter
 	return &repositoryCarts{sess, database}
 
 }
+
 func (repo *repositoryCarts) Create(e *entity.Cart) (bool, error) {
 	var err error
 	ds := repo.dbSession.Copy()
@@ -86,10 +87,10 @@ func (repo *repositoryCarts) FindAll(searchParam request.SearchParamWithPagingCa
 	pipeline := []bson.M{}
 	pipelineCount := []bson.M{}
 
-	block := helper.TrimWhiteSpace(searchParam.Name)
-	if block != "" {
-		pipeline = append(pipeline, bson.M{"$match": bson.M{"name": block}})
-		pipelineCount = append(pipelineCount, bson.M{"$match": bson.M{"block": block}})
+	paymentCode := helper.TrimWhiteSpace(searchParam.PaymentCode)
+	if paymentCode != "" {
+		pipeline = append(pipeline, bson.M{"$match": bson.M{"payment_code": paymentCode}})
+		pipelineCount = append(pipelineCount, bson.M{"$match": bson.M{"payment_code": paymentCode}})
 	}
 
 	skip := 0
@@ -138,9 +139,9 @@ func (repo *repositoryCarts) FindAllWithPaging(searchParam request.SearchParamWi
 
 	pipeline := []bson.M{}
 
-	name := helper.TrimWhiteSpace(searchParam.Name)
-	if name != "" {
-		pipeline = append(pipeline, bson.M{"$match": bson.M{"name": name}})
+	paymentCode := helper.TrimWhiteSpace(searchParam.PaymentCode)
+	if paymentCode != "" {
+		pipeline = append(pipeline, bson.M{"$match": bson.M{"payment_code": paymentCode}})
 	}
 
 	grouping := bson.M{"$group": bson.M{
@@ -182,10 +183,46 @@ func (repo *repositoryCarts) Checkout(cartIds []*bson.ObjectId, paymentCode stri
 		change,
 	)
 
+
+
+
+
 	if err != nil {
 
 		return err
 	}
 
 	return nil
+}
+
+func (repo *repositoryCarts) FindByPaymentCode(paymentCode string) ([]*entity.Cart, error){
+	var err error
+
+	ds := repo.dbSession.Copy()
+	defer ds.Close()
+	table := ds.DB(repo.database).C(collectionCart)
+
+	var cartEntities []*entity.Cart
+	err = table.Find(bson.M{"payment_code" : paymentCode}).All(&cartEntities)
+	if err != nil {
+		return nil, err
+	}
+
+	return cartEntities, nil
+}
+
+func (repo *repositoryCarts) DeleteByPaymentCode(paymentCode string) error{
+	var err error
+
+	ds := repo.dbSession.Copy()
+	defer ds.Close()
+	table := ds.DB(repo.database).C(collectionCart)
+
+	_, err = table.RemoveAll(bson.M{"payment_code": paymentCode})
+	if err != nil {
+
+		return err
+	}
+	return  nil
+
 }

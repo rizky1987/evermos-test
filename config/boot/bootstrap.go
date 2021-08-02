@@ -67,6 +67,7 @@ func (h *HTTPHandler) RegisterApiHandler() *HTTPHandler {
 	route.RegisterProductRoutes(baseEndpointGroup, h.Helper, h.Config)
 	route.RegisterCartRoutes(baseEndpointGroup, h.Helper, h.Config)
 	route.RegisterCustomerRoutes(baseEndpointGroup, h.Helper, h.Config)
+	route.RegisterPaymentRoutes(baseEndpointGroup, h.Helper, h.Config)
 
 	return h
 }

@@ -19,6 +19,7 @@ var ProductRepository interfaces.ProductInterface
 var InventoryAdjustmentRepository interfaces.InventoryAdjustmentInterface
 var CartRepository interfaces.CartInterface
 var CustomerRepository interfaces.CustomerInterface
+var PaymentRepository interfaces.PaymentInterface
 
 func (i *Info) Connect() (*mgo.Session, error) {
 	mongoDBDialInfo := &mgo.DialInfo{
@@ -41,5 +42,7 @@ func (i *Info) Connect() (*mgo.Session, error) {
 	InventoryAdjustmentRepository = repository.NewInventoryAdjustmentsRepository(session, i.Database)
 	CartRepository = repository.NewCartsRepository(session, i.Database)
 	CustomerRepository = repository.NewCustomersRepository(session, i.Database)
+	PaymentRepository = repository.NewPaymentsRepository(session, i.Database)
+
 	return session, err
 }

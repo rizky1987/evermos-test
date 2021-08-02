@@ -59,10 +59,15 @@ func (_h *ProductHandler) CreateProduct(c echo.Context) error {
 
 	productId := helper.GenerateBsonObjectId()
 	newMainEntityToSave.Id = productId
+
+	_, err = _h.ProductRepository.Create(&newMainEntityToSave)
+
+	if err != nil {
+		errResults = append(errResults, err.Error())
+	}
 	if len(errResults) > 0 {
 		return _h.Helper.SendBadRequest(c, errResults)
 	}
-	_, err = _h.ProductRepository.Create(&newMainEntityToSave)
 
 	inventoryAdjustment := entity.InventoryAdjustment{
 		ProductId	: productId,

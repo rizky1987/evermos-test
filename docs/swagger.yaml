@@ -1,5 +1,15 @@
 basePath: /v2
 definitions:
+  request.CallbackPaymentRequest:
+    properties:
+      payment_code:
+        type: string
+      status:
+        type: string
+    required:
+    - payment_code
+    - status
+    type: object
   request.CheckoutCartRequest:
     properties:
       cart_ids:
@@ -222,6 +232,48 @@ definitions:
         type: array
       result:
         $ref: '#/definitions/response.CustomerSearchResponse'
+        type: object
+    type: object
+  response.PaymentFailedResponse:
+    properties:
+      code:
+        type: integer
+      code_type:
+        type: string
+      error_messages:
+        items:
+          type: string
+        type: array
+    type: object
+  response.PaymentResponse:
+    properties:
+      code:
+        type: string
+      id:
+        type: string
+      message:
+        type: string
+      name:
+        type: string
+      on_hold_quantity:
+        type: integer
+      quantity:
+        type: integer
+      sold_quantity:
+        type: integer
+    type: object
+  response.PaymentSuccessResponse:
+    properties:
+      code:
+        type: integer
+      code_type:
+        type: string
+      error_messages:
+        items:
+          type: string
+        type: array
+      result:
+        $ref: '#/definitions/response.PaymentResponse'
         type: object
     type: object
   response.ProductFailedResponse:
@@ -553,6 +605,36 @@ paths:
             $ref: '#/definitions/response.CustomerFailedResponse'
       tags:
       - Customer
+  /payment/callback:
+    post:
+      consumes:
+      - application/json
+      description: Callback Payment
+      operationId: Callback Payment
+      parameters:
+      - description: callback payment info
+        in: body
+        name: CreatePayment
+        required: true
+        schema:
+          $ref: '#/definitions/request.CallbackPaymentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.PaymentSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.PaymentFailedResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.PaymentFailedResponse'
+      tags:
+      - Payment
   /product:
     post:
       consumes:

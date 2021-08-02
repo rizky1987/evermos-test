@@ -18,6 +18,8 @@ type CartHandler struct {
 	Helper         					helper.HTTPHelper
 	CartRepository 					interfaces.CartInterface
 	ProductRepository 				interfaces.ProductInterface
+	PaymentRepository 				interfaces.PaymentInterface
+	CustomerRepository 				interfaces.CustomerInterface
 	Config         					env.Config
 }
 
@@ -47,11 +49,40 @@ func (_h *CartHandler) CreateCart(c echo.Context) error {
 	}
 
 	if err = _h.Helper.Validate.Struct(input); err != nil {
-
 		return _h.Helper.SendInputValidationError(c, err.(validator.ValidationErrors))
 	}
 
 	// Begin Add Your Additional Logic Here
+
+	productId, errProductId := helper.ChangeStringOfObjectIdToBsonObjectId(input.ProductId)
+	if errProductId != nil {
+		errResults = append(errResults, errProductId.Error())
+	}
+
+	customerId, errCustomerId := helper.ChangeStringOfObjectIdToBsonObjectId(input.CustomerId)
+	if errCustomerId != nil {
+		errResults = append(errResults, errCustomerId.Error())
+	}
+
+	if len(errResults) > 0 {
+		return _h.Helper.SendBadRequest(c, errResults)
+	}
+
+
+	_, errProductEntity := _h.ProductRepository.FindById(productId)
+	if errProductEntity != nil {
+		errResults = append(errResults, "product " + errProductEntity.Error())
+	}
+
+	_, errCustomerEntity := _h.CustomerRepository.FindById(customerId)
+	if errCustomerEntity != nil {
+		errResults = append(errResults, "customer " + errCustomerEntity.Error())
+	}
+
+	if len(errResults) > 0 {
+
+		return _h.Helper.SendBadRequest(c, errResults)
+	}
 	// End Add Your Additional Logic Here
 
 	//begin save to DB
@@ -67,11 +98,9 @@ func (_h *CartHandler) CreateCart(c echo.Context) error {
 
 		errResults = append(errResults, err.Error())
 		return _h.Helper.SendBadRequest(c, errResults)
-
 	}
 
 	// End Save To DB
-
 	return _h.Helper.SendSuccess(c, nil)
 
 }
@@ -291,9 +320,12 @@ func (_h *CartHandler) Checkout(cartIds []*bson.ObjectId) []string {
 
 	paymentCode,_ := helper.GenerateRandomString(`[A-Z0-9]{7}-[A-Z0-9]{7}-[A-Z0-9]{7}-[A-Z0-9]{7}`)
 
-	for i:=0; i<len(cartIds); i++ {
-		wg.Add(1)
-		go func() {
+
+	go func() {
+
+		for i:=0; i<len(cartIds); i++ {
+
+			wg.Add(3)
 
 			cartEntity, errCartEntity := _h.CartRepository.FindById(cartIds[i])
 			if errCartEntity != nil {
@@ -301,12 +333,15 @@ func (_h *CartHandler) Checkout(cartIds []*bson.ObjectId) []string {
 				errResults = append(errResults, errCartEntity.Error())
 			}
 
-			productEntity, errProductEntity := _h.ProductRepository.FindById(cartEntity.Id)
+			wg.Done()
+
+			productEntity, errProductEntity := _h.ProductRepository.FindById(cartEntity.ProductId)
 			if errProductEntity != nil {
 
 				errResults = append(errResults, errProductEntity.Error())
 			}
 
+			wg.Done()
 			if productEntity.Quantity < cartEntity.Quantity {
 
 				errMessage := fmt.Sprintf("This product's quantity only left %d", productEntity.Quantity)
@@ -318,10 +353,9 @@ func (_h *CartHandler) Checkout(cartIds []*bson.ObjectId) []string {
 
 			_h.ProductRepository.Update(productEntity.Id, productEntity)
 
-			totalPayment = totalPayment + (productEntity.Price * cartEntity.Quantity)
 			wg.Done()
-		}()
-	}
+		}
+	}()
 
 	wg.Wait()
 
@@ -329,7 +363,18 @@ func (_h *CartHandler) Checkout(cartIds []*bson.ObjectId) []string {
 		return errResults
 	}
 
-	err := _h.CartRepository.Checkout(cartIds, paymentCode)
+	paymentEntity := &entity.Payment{
+		Total: totalPayment,
+		Code:paymentCode,
+		Status:helper.PaymentStatusNewRequest,
+	}
+	paymentEntity.ValidateBeforeCreate()
+	_, err := _h.PaymentRepository.Create(paymentEntity)
+	if err != nil {
+		errResults = append(errResults, err.Error())
+	}
+
+	err = _h.CartRepository.Checkout(cartIds, paymentCode)
 	if err != nil {
 		errResults = append(errResults, err.Error())
 	}

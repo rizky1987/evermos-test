@@ -16,6 +16,9 @@ func RegisterCartRoutes(baseEndpointGroup *echo.Group, httpHelper httpHelper.HTT
 			Helper							: httpHelper,
 			Config							: config,
 			CartRepository					: mongo.CartRepository,
+			CustomerRepository 				: mongo.CustomerRepository,
+			ProductRepository 				: mongo.ProductRepository,
+			PaymentRepository 				: mongo.PaymentRepository,
 		}
 
 		group.POST("/find-all", handler.FindAll)

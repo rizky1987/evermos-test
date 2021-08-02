@@ -6,10 +6,11 @@ import (
 	"time"
 )
 
-type PaymentRequest struct {
+type Payment struct {
 	Id           				bson.ObjectId 			`bson:"_id,omitempty"`
-	Code		 				string               	`bson:"code"`
-	Total		 				int               		`bson:"total"`
+	Code		 				string               	`bson:"code,omitempty"`
+	Total		 				int               		`bson:"total,omitempty"`
+	Status		 				string               	`bson:"status,omitempty"`
 	CreatedAtUTC        		time.Time         		`bson:"created_at_utc"`
 	CreatedAtTimezone     		time.Time         		`bson:"created_at_timezone"`
 	UpdatedAtUTC        		*time.Time        		`bson:"updated_at_utc,omitempty"`
@@ -18,7 +19,7 @@ type PaymentRequest struct {
 
 // Begin Create Validation
 
-func (entityStruct *PaymentRequest) ValidateBeforeCreate() []string {
+func (entityStruct *Payment) ValidateBeforeCreate() []string {
 
 	entityStruct.CreatedAtUTC = helper.GetCurrentTimeUTC()
 	entityStruct.CreatedAtTimezone = helper.GenerateCurrentTimeZone(helper.DefaultTimeZone)
@@ -29,13 +30,10 @@ func (entityStruct *PaymentRequest) ValidateBeforeCreate() []string {
 
 // End Create validation
 
-
-
 // End Update Validation
 
-
 // Please make sure all data is a correct data before we save it to DB
-func (entityStruct *PaymentRequest) ValidatebeforeSaveToDB() error {
+func (entityStruct *Payment) ValidatebeforeSaveToDB() error {
 	// Add you Validation Here
 
 	return nil

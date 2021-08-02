@@ -9,13 +9,13 @@ import (
 type InventoryAdjustment struct {
 	Id                		*bson.ObjectId  `bson:"_id,omitempty"`
 	ProductId         		*bson.ObjectId  `bson:"product_id"`
-	Process           		string         `bson:"process"`
-	Quantity          		int            `bson:"quantity"`
-	Note    				string         `bson:"note"`
-	CreatedAtUTC      		time.Time      `bson:"created_at_utc"`
-	CreatedAtTimezone 		time.Time      `bson:"created_at_timezone"`
-	UpdatedAtUTC      		*time.Time     `bson:"updated_at_utc,omitempty"`
-	UpdatedAtTimezone 		*time.Time     `bson:"updated_at_timezone,omitempty"`
+	Process           		string        	`bson:"process"`
+	Quantity          		int           	`bson:"quantity"`
+	Note    				string        	`bson:"note"`
+	CreatedAtUTC      		time.Time     	`bson:"created_at_utc"`
+	CreatedAtTimezone 		time.Time     	`bson:"created_at_timezone"`
+	UpdatedAtUTC      		*time.Time    	`bson:"updated_at_utc,omitempty"`
+	UpdatedAtTimezone 		*time.Time    	`bson:"updated_at_timezone,omitempty"`
 }
 
 // Begin Create Validation

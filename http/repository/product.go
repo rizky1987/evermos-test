@@ -16,7 +16,6 @@ type repositoryProducts struct {
 }
 
 var collectionProduct = "products"
-var collectionPaymentRequests = "payment_requests"
 
 func NewProductsRepository(sess *mgo.Session, database string) interfaces.ProductInterface {
 	return &repositoryProducts{sess, database}
