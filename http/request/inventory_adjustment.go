@@ -1,13 +1,18 @@
 package request
 
+type CreateInventoryAdjustmentRequest struct {
+	ProductId         		string  		`json:"product_id" validate:"required"`
+	Process           		string        	`json:"process" validate:"required"`
+	Quantity          		int           	`json:"quantity" validate:"required"`
+	Note    				string        	`json:"note" validate:"required"`
+}
+
 type SearchParamInventoryAdjustmentRequest struct {
-	ProductName		string            		`json:"product_name"`
-	ProductCode		string            		`json:"product_code"`
+	ProductId		string            		`json:"product_id"`
 }
 
 type SearchParamWithPagingInventoryAdjustmentRequest struct {
-	ProductName		string            		`json:"product_name"`
-	ProductCode		string            		`json:"product_code"`
+	ProductId		string            		`json:"product_id"`
 	Page 			int 					`json:"page"`
 	Limit 			int 					`json:"limit"`
 }

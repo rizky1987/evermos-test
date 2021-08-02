@@ -3,7 +3,6 @@ package repository
 import (
 	"evermos-test/database/entity"
 	"evermos-test/http/interfaces"
-	"fmt"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -48,7 +47,6 @@ func (repo *repositoryPayments) UpdateStatus(paymentCode, status string)  error{
 	err = table.Update(who, what)
 	if err != nil {
 
-		fmt.Println("rizky 777")
 		return err
 	}
 	return nil

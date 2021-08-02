@@ -68,17 +68,12 @@ func (repo *repositoryInventoryAdjustments) FindAll(searchParam request.SearchPa
 	pipeline := []bson.M{}
 	pipelineCount := []bson.M{}
 
-	productName := helper.TrimWhiteSpace(searchParam.ProductName)
-	if productName != "" {
-		pipeline = append(pipeline, bson.M{"$match": bson.M{"name": productName}})
-		pipelineCount = append(pipelineCount, bson.M{"$match": bson.M{"name": productName}})
+	productId, _ := helper.ChangeStringOfObjectIdToBsonObjectId(searchParam.ProductId)
 
-	}
+	if productId != nil {
+		pipeline = append(pipeline, bson.M{"$match": bson.M{"product_id": productId}})
+		pipelineCount = append(pipelineCount, bson.M{"$match": bson.M{"product_id": productId}})
 
-	productCode := helper.TrimWhiteSpace(searchParam.ProductCode)
-	if productName != "" {
-		pipeline = append(pipeline, bson.M{"$match": bson.M{"code": productCode}})
-		pipelineCount = append(pipelineCount, bson.M{"$match": bson.M{"code": productCode}})
 	}
 
 	skip := 0
@@ -127,14 +122,9 @@ func (repo *repositoryInventoryAdjustments) FindAllWithPaging(searchParam reques
 
 	pipeline := []bson.M{}
 
-	productName := helper.TrimWhiteSpace(searchParam.ProductName)
-	if productName != "" {
-		pipeline = append(pipeline, bson.M{"$match": bson.M{"name": productName}})
-	}
-
-	productCode := helper.TrimWhiteSpace(searchParam.ProductCode)
-	if productCode != "" {
-		pipeline = append(pipeline, bson.M{"$match": bson.M{"code": productCode}})
+	productId, _ := helper.ChangeStringOfObjectIdToBsonObjectId(searchParam.ProductId)
+	if productId != nil {
+		pipeline = append(pipeline, bson.M{"$match": bson.M{"product_id": productId}})
 	}
 
 	grouping := bson.M{"$group": bson.M{

@@ -1,7 +1,9 @@
 package entity
 
 import (
+	"encoding/json"
 	"evermos-test/helper"
+	"evermos-test/http/request"
 	"gopkg.in/mgo.v2/bson"
 	"time"
 )
@@ -14,8 +16,6 @@ type InventoryAdjustment struct {
 	Note    				string        	`bson:"note"`
 	CreatedAtUTC      		time.Time     	`bson:"created_at_utc"`
 	CreatedAtTimezone 		time.Time     	`bson:"created_at_timezone"`
-	UpdatedAtUTC      		*time.Time    	`bson:"updated_at_utc,omitempty"`
-	UpdatedAtTimezone 		*time.Time    	`bson:"updated_at_timezone,omitempty"`
 }
 
 // Begin Create Validation
@@ -27,10 +27,16 @@ func (entityStruct *InventoryAdjustment) ValidateBeforeCreate() []string {
 
 	errorResults := []string{}
 
-	if entityStruct.Quantity < 1 {
-		errorResults = append(errorResults, "Inventory Adjustment's quantity must greater than zero")
-	}
 	return errorResults
 }
 
 // End Create validation
+
+func (entityStruct *InventoryAdjustment) MappingCreateDataToEntityStruct(requestedStruct request.CreateInventoryAdjustmentRequest) {
+
+	jsonString, _ := json.Marshal(requestedStruct)
+	json.Unmarshal(jsonString, &entityStruct)
+
+	productId, _ := helper.ChangeStringOfObjectIdToBsonObjectId(requestedStruct.ProductId)
+	entityStruct.ProductId = productId
+}

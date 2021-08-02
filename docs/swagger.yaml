@@ -42,6 +42,22 @@ definitions:
     - code
     - name
     type: object
+  request.CreateInventoryAdjustmentRequest:
+    properties:
+      note:
+        type: string
+      process:
+        type: string
+      product_id:
+        type: string
+      quantity:
+        type: integer
+    required:
+    - note
+    - process
+    - product_id
+    - quantity
+    type: object
   request.CreateProductRequest:
     properties:
       code:
@@ -69,6 +85,11 @@ definitions:
   request.SearchParamCustomerRequest:
     properties:
       name:
+        type: string
+    type: object
+  request.SearchParamInventoryAdjustmentRequest:
+    properties:
+      product_id:
         type: string
     type: object
   request.SearchParamProductRequest:
@@ -232,6 +253,77 @@ definitions:
         type: array
       result:
         $ref: '#/definitions/response.CustomerSearchResponse'
+        type: object
+    type: object
+  response.InventoryAdjustmentFailedResponse:
+    properties:
+      code:
+        type: integer
+      code_type:
+        type: string
+      error_messages:
+        items:
+          type: string
+        type: array
+    type: object
+  response.InventoryAdjustmentResponse:
+    properties:
+      code:
+        type: string
+      id:
+        type: string
+      message:
+        type: string
+      name:
+        type: string
+      on_hold_quantity:
+        type: integer
+      quantity:
+        type: integer
+      sold_quantity:
+        type: integer
+    type: object
+  response.InventoryAdjustmentSearchResponse:
+    properties:
+      current_page:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/response.InventoryAdjustmentResponse'
+        type: array
+      limit:
+        type: integer
+      total_page:
+        type: integer
+      total_records:
+        type: integer
+    type: object
+  response.InventoryAdjustmentSuccessResponse:
+    properties:
+      code:
+        type: integer
+      code_type:
+        type: string
+      error_messages:
+        items:
+          type: string
+        type: array
+      result:
+        $ref: '#/definitions/response.InventoryAdjustmentResponse'
+        type: object
+    type: object
+  response.InventoryAdjustmentSuccessWithPagingResponse:
+    properties:
+      code:
+        type: integer
+      code_type:
+        type: string
+      error_messages:
+        items:
+          type: string
+        type: array
+      result:
+        $ref: '#/definitions/response.InventoryAdjustmentSearchResponse'
         type: object
     type: object
   response.PaymentFailedResponse:
@@ -605,6 +697,84 @@ paths:
             $ref: '#/definitions/response.CustomerFailedResponse'
       tags:
       - Customer
+  /inventory-adjustment:
+    post:
+      consumes:
+      - application/json
+      description: Create InventoryAdjustment
+      operationId: Create InventoryAdjustment
+      parameters:
+      - description: create inventory adjustment info
+        in: body
+        name: CreateInventoryAdjustment
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateInventoryAdjustmentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.InventoryAdjustmentSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.InventoryAdjustmentFailedResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.InventoryAdjustmentFailedResponse'
+      tags:
+      - InventoryAdjustment
+  /inventory-adjustment/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Find a InventoryAdjustment
+      operationId: Find a InventoryAdjustment
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.InventoryAdjustmentSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.InventoryAdjustmentFailedResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.InventoryAdjustmentFailedResponse'
+      tags:
+      - InventoryAdjustment
+  /inventory-adjustment/find-all:
+    post:
+      consumes:
+      - application/json
+      description: Find All InventoryAdjustment
+      parameters:
+      - description: search product info
+        in: body
+        name: SearchInventoryAdjustment
+        required: true
+        schema:
+          $ref: '#/definitions/request.SearchParamInventoryAdjustmentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.InventoryAdjustmentSuccessWithPagingResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.InventoryAdjustmentFailedResponse'
+      tags:
+      - InventoryAdjustment
   /payment/callback:
     post:
       consumes:
