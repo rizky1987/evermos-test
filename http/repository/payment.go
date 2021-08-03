@@ -26,6 +26,11 @@ func (repo *repositoryPayments) Create(e *entity.Payment) (bool, error) {
 
 	table := ds.DB(repo.database).C(collectionPayment)
 
+	index := mgo.Index{
+		Key:    []string{"code"},
+		Unique: true,
+	}
+	table.EnsureIndex(index)
 	e.ValidateBeforeCreate()
 	if err = table.Insert(&e); err != nil {
 		return false, err
@@ -41,9 +46,17 @@ func (repo *repositoryPayments) UpdateStatus(paymentCode, status string)  error{
 	defer ds.Close()
 	table := ds.DB(repo.database).C(collectionPayment)
 
+	var payment *entity.Payment
+	table.Find(bson.M{"code" : paymentCode}).One(&payment)
+
 	who := bson.M{"code" : paymentCode}
 
-	what := bson.M{"status": status}
+	what := bson.M{
+		"status": status,
+		"code" : paymentCode,
+		"created_at_utc" : payment.CreatedAtUTC,
+		"created_at_timezone" : payment.CreatedAtTimezone,
+	}
 	err = table.Update(who, what)
 	if err != nil {
 

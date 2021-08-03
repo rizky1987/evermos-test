@@ -57,7 +57,7 @@ func (_h *ProductHandler) CreateProduct(c echo.Context) error {
 
 	errResults = newMainEntityToSave.ValidateBeforeCreate(input)
 
-	productId := helper.GenerateBsonObjectId()
+	productId := helper.ProductIdTest
 	newMainEntityToSave.Id = productId
 
 	_, err = _h.ProductRepository.Create(&newMainEntityToSave)

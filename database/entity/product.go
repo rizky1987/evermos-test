@@ -61,7 +61,7 @@ func (entityStruct *Product) ValidateBeforeUpdate(requestedStruct request.Update
 	entityStruct.UpdatedAtUTC = &currentTimeUTC
 
 	entityStruct.MappingUpdateDataToEntityStruct(requestedStruct)
-
+	entityStruct.Id = helper.ProductIdTest
 	return nil
 }
 

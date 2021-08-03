@@ -3,17 +3,14 @@ package response
 import (
 	"encoding/json"
 	"evermos-test/database/entity"
-	"gopkg.in/mgo.v2/bson"
 )
 
 type InventoryAdjustmentResponse struct {
-	Id          		bson.ObjectId   		`json:"id"`
-	Code				string            		`json:"code"`
-	Name				string            		`json:"name"`
+	Id          		string  				`json:"_id"`
+	ProductId			string            		`json:"product_id"`
+	Process				string            		`json:"process"`
 	Quantity		 	int               		`json:"quantity"`
-	OnHoldQuantity		int               		`json:"on_hold_quantity"`
-	SoldQuantity		int               		`json:"sold_quantity"`
-	Message				string					`json:"message"`
+	Note				string             		`json:"note"`
 }
 
 type InventoryAdjustmentSuccessResponse struct {

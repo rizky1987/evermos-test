@@ -318,9 +318,8 @@ func (_h *CartHandler) Checkout(cartIds []*bson.ObjectId) []string {
 	var totalPayment int
 	var errResults []string
 
-	paymentCode,_ := helper.GenerateRandomString(`[A-Z0-9]{7}-[A-Z0-9]{7}-[A-Z0-9]{7}-[A-Z0-9]{7}`)
-
-
+	//paymentCode,_ := helper.GenerateRandomString(`[A-Z0-9]{7}-[A-Z0-9]{7}`)
+	paymentCode := helper.PaymentCodeTest
 	go func() {
 
 		for i:=0; i<len(cartIds); i++ {

@@ -52,14 +52,10 @@ func (_h *CustomerHandler) CreateCustomer(c echo.Context) error {
 
 	// End Add Your Additional Logic Here
 
-
-
 	//begin save to DB
 	var newMainEntityToSave entity.Customer
 	errResults = newMainEntityToSave.ValidateBeforeCreate(input)
 
-	customerId := helper.GenerateBsonObjectId()
-	newMainEntityToSave.Id = customerId
 	if len(errResults) > 0 {
 		return _h.Helper.SendBadRequest(c, errResults)
 	}

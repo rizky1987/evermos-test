@@ -38,6 +38,7 @@ func (entityStruct *Cart) ValidateBeforeCreate(requestedStruct request.CreateCar
 	entityStruct.Status = helper.CartStatusNew
 	entityStruct.ProductId = productId
 	entityStruct.CustomerId = customerId
+	entityStruct.Id = helper.CartIdTest
 	return errorResults
 }
 

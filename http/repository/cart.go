@@ -173,7 +173,7 @@ func (repo *repositoryCarts) Checkout(cartIds []*bson.ObjectId, paymentCode stri
 	defer ds.Close()
 	table := ds.DB(repo.database).C(collectionCart)
 
-	who := bson.M{"_id" : bson.M{"in" : cartIds}}
+	who := bson.M{"_id" : bson.M{"$in" : cartIds}}
 	change := bson.M{"$set": bson.M{
 		"status"		: helper.CartStatusCheckout,
 		"payment_code"	: paymentCode,

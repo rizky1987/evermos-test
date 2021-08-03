@@ -6,6 +6,7 @@ import (
 	"evermos-test/helper"
 	"evermos-test/http/interfaces"
 	"evermos-test/http/request"
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"gopkg.in/go-playground/validator.v9"
 	"sync"
@@ -86,12 +87,13 @@ func (_h *PaymentHandler) Callback(c echo.Context) error {
 			_h.ProductRepository.Update(productEntity.Id, productEntity)
 			wg.Done()
 
+			note := fmt.Sprintf("%v with transaction Code : %v ", helper.ProcessSoldText, input.PaymentCode )
 			//Add inventory Adjustment History
 			inventoryAdjustment := &entity.InventoryAdjustment{
 				Quantity:  cartEntities[i].Quantity,
 				ProductId: cartEntities[i].ProductId,
 				Process:   helper.ProcessOutText,
-				Note:      helper.ProcessSoldText,
+				Note:      note,
 			}
 
 			inventoryAdjustment.ValidateBeforeCreate()

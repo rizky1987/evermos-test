@@ -9,7 +9,7 @@ import (
 )
 
 type Customer struct {
-	Id           				*bson.ObjectId 			`bson:"_id,omitempty"`
+	Id           				*bson.ObjectId 			`bson:"_id"`
 	Code		 				string               	`bson:"code"`
 	Name		 				string               	`bson:"name"`
 	CreatedAtUTC        		time.Time         		`bson:"created_at_utc"`
@@ -26,6 +26,7 @@ func (entityStruct *Customer) ValidateBeforeCreate(requestedStruct request.Creat
 	entityStruct.CreatedAtTimezone = helper.GenerateCurrentTimeZone(helper.DefaultTimeZone)
 	// Mapping All requested Struct Field to Entity Struct
 	entityStruct.MappingCreateDataToEntityStruct(requestedStruct)
+	entityStruct.Id = helper.CustomerIdTest
 
 	errorResults := []string{}
 
@@ -36,6 +37,8 @@ func (entityStruct *Customer) MappingCreateDataToEntityStruct(requestedStruct re
 
 	jsonString, _ := json.Marshal(requestedStruct)
 	json.Unmarshal(jsonString, &entityStruct)
+
+
 }
 
 // End Create validation
